@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7c5dc46e4534b15d9950044fe324c3a7",
+    "content-hash": "d7a0bc5008121f2af8bba836eedd3762",
     "packages": [
         {
             "name": "brick/math",
@@ -3113,6 +3113,65 @@
             "time": "2026-06-29T15:41:09+00:00"
         },
         {
+            "name": "putyourlightson/laravel-datastar",
+            "version": "1.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/putyourlightson/laravel-datastar.git",
+                "reference": "58f4ead88c0ac26d743f69e9ac264ead25ad57a2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/putyourlightson/laravel-datastar/zipball/58f4ead88c0ac26d743f69e9ac264ead25ad57a2",
+                "reference": "58f4ead88c0ac26d743f69e9ac264ead25ad57a2",
+                "shasum": ""
+            },
+            "require": {
+                "laravel/framework": ">=11.0",
+                "php": "^8.2",
+                "starfederation/datastar-php": "^1.0.0"
+            },
+            "require-dev": {
+                "craftcms/ecs": "dev-main",
+                "craftcms/phpstan": "dev-main",
+                "pestphp/pest": "^3.0",
+                "phpstan/phpstan": "^2.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Putyourlightson\\Datastar\\DatastarServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/helpers.php"
+                ],
+                "psr-4": {
+                    "Putyourlightson\\Datastar\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "mit"
+            ],
+            "description": "A reactive hypermedia framework for Laravel.",
+            "support": {
+                "docs": "https://github.com/putyourlightson/laravel-datastar",
+                "issues": "https://github.com/putyourlightson/laravel-datastar/issues",
+                "source": "https://github.com/putyourlightson/laravel-datastar"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/bencroker",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-08-29T11:21:50+00:00"
+        },
+        {
             "name": "ramsey/collection",
             "version": "2.1.1",
             "source": {
@@ -3265,6 +3324,53 @@
                 "source": "https://github.com/ramsey/uuid/tree/4.9.3"
             },
             "time": "2026-06-18T03:57:49+00:00"
+        },
+        {
+            "name": "starfederation/datastar-php",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/starfederation/datastar-php.git",
+                "reference": "a02c72956c9ee80fe7ae2ce28d1112cf92c6ffbf"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/starfederation/datastar-php/zipball/a02c72956c9ee80fe7ae2ce28d1112cf92c6ffbf",
+                "reference": "a02c72956c9ee80fe7ae2ce28d1112cf92c6ffbf",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1"
+            },
+            "require-dev": {
+                "craftcms/ecs": "dev-main",
+                "craftcms/phpstan": "dev-main",
+                "pestphp/pest": "^3.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "starfederation\\datastar\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "mit"
+            ],
+            "authors": [
+                {
+                    "name": "Ben Croker",
+                    "homepage": "https://putyourlightson.com/",
+                    "role": "Author"
+                }
+            ],
+            "description": "A PHP SDK for working with Datastar.",
+            "support": {
+                "docs": "https://github.com/starfederation/datastar-php",
+                "issues": "https://github.com/starfederation/datastar-php/issues",
+                "source": "https://github.com/starfederation/datastar-php"
+            },
+            "time": "2026-06-02T18:56:00+00:00"
         },
         {
             "name": "symfony/clock",
