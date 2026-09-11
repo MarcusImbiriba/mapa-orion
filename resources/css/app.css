@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import 'leaflet/dist/leaflet.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -6,4 +7,38 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+mapa-orion-map {
+    display: block;
+    position: relative;
+    isolation: isolate;
+    height: 100%;
+    min-height: 18rem;
+}
+
+mapa-orion-map [data-map-canvas] {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    font-family: inherit;
+}
+
+mapa-orion-map .leaflet-control-attribution {
+    max-width: calc(100vw - 1.5rem);
+    color: #334155;
+    background: rgb(255 255 255 / 95%);
+}
+
+mapa-orion-map .leaflet-control-attribution a {
+    color: #075985;
+}
+
+mapa-orion-map .leaflet-control-zoom a {
+    color: #0f172a;
+}
+
+mapa-orion-map .leaflet-control a:focus-visible {
+    outline: 3px solid #d97706;
+    outline-offset: 2px;
 }
