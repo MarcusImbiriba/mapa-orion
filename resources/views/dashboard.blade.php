@@ -27,6 +27,7 @@
                             max-zoom="{{ config('map.max_zoom') }}"
                             tile-url="{{ config('map.tile_url') }}"
                             attribution="{{ config('map.attribution') }}"
+                            units="{{ $units->toJson() }}"
                             data-ignore-morph>
                 <div data-map-canvas data-ignore aria-label="Mapa interativo. Use as setas para navegar e mais ou menos para ajustar o zoom."></div>
 

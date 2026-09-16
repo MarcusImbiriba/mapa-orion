@@ -1,4 +1,16 @@
 import L from 'leaflet';
+import markerIconUrl from 'leaflet/dist/images/marker-icon.png';
+import markerIconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
+import markerShadowUrl from 'leaflet/dist/images/marker-shadow.png';
+
+const unitIcon = L.icon({
+    iconUrl: markerIconUrl,
+    iconRetinaUrl: markerIconRetinaUrl,
+    shadowUrl: markerShadowUrl,
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    shadowSize: [41, 41],
+});
 
 class MapaOrionMap extends HTMLElement {
     #map;
@@ -52,6 +64,32 @@ class MapaOrionMap extends HTMLElement {
                     }
                 })
                 .addTo(this.#map);
+
+            const units = JSON.parse(this.getAttribute('units') ?? '[]');
+
+            for (const unit of units) {
+                const location = unit.location;
+
+                if (location?.type !== 'Point' || !Array.isArray(location.coordinates)
+                    || location.coordinates.length !== 2) {
+                    continue;
+                }
+
+                const [longitude, latitude] = location.coordinates;
+
+                if (!Number.isFinite(longitude) || !Number.isFinite(latitude)
+                    || longitude < -180 || longitude > 180 || latitude < -90 || latitude > 90) {
+                    continue;
+                }
+
+                const label = `${unit.acronym} — ${unit.name}`;
+
+                L.marker([latitude, longitude], {
+                    icon: unitIcon,
+                    title: label,
+                    alt: label,
+                }).addTo(this.#map);
+            }
 
             recenterButton.disabled = false;
             recenterButton.addEventListener('click', () => this.recenter(), {
