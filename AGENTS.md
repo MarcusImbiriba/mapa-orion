@@ -159,3 +159,14 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 - After the feature tests pass, ask the user to run the complete suite with `php artisan test --compact`.
 
 </laravel-boost-guidelines>
+
+
+## Procedimento de commits e sincronização
+
+- Antes de executar cada comando Git ou GitHub CLI, mostrar o comando e explicar brevemente, em português, sua finalidade e o efeito das opções utilizadas, para que o usuário possa repetir o procedimento manualmente.
+- Preferir a branch principal (`main`) e commits pequenos, com uma mudança coerente por commit.
+- Antes do commit, conferir a branch e os arquivos pendentes com `git status --short --branch`, revisar o diff e executar `git diff --check`.
+- Preparar somente os arquivos relacionados à tarefa, indicando seus caminhos em `git add`. Conferir a seleção com `git diff --cached` e `git diff --cached --check` antes de criar o commit.
+- Usar mensagens de commit claras e explicar a diferença entre preparar arquivos (`add`), registrar no histórico local (`commit`) e enviar ao remoto (`push`).
+- Após o push, conferir se não restaram alterações inesperadas e comparar o commit local (`git rev-parse HEAD`) com a branch remota (`git ls-remote origin refs/heads/main`). Só afirmar que houve sincronização após confirmar os identificadores.
+- Ao concluir, informar o identificador e a mensagem do commit, o resultado do envio e eventuais alterações pendentes. Distinguir código versionado de dados locais, como o banco SQLite.
