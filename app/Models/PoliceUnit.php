@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['code', 'name', 'acronym', 'unit_type', 'region', 'address', 'location'])]
+#[Fillable(['code', 'name', 'acronym', 'unit_type', 'region', 'address', 'location', 'commander', 'deputy_commander', 'phone', 'email', 'served_localities'])]
 class PoliceUnit extends Model
 {
     /** @use HasFactory<PoliceUnitFactory> */

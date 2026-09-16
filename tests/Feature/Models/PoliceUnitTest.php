@@ -24,6 +24,11 @@ test('a police unit can be stored with only its identity and without an operatio
         'region' => null,
         'address' => null,
         'location' => null,
+        'commander' => null,
+        'deputy_commander' => null,
+        'phone' => null,
+        'email' => null,
+        'served_localities' => null,
     ]);
 });
 
@@ -103,3 +108,60 @@ test('the database requires each identity field', function (string $field) {
 
     $this->assertDatabaseCount('police_units', 0);
 })->with(['code', 'name', 'acronym']);
+
+test('a police unit preserves command contacts and served localities', function () {
+    $attributes = PoliceUnit::factory()->raw([
+        'commander' => 'Comandante de teste',
+        'deputy_commander' => 'Subcomandante de teste',
+        'phone' => '(98) 3000-0000 / 0001',
+        'email' => 'unidade@example.com',
+        'served_localities' => 'Bairro de teste (parcial — trecho norte); Cidade de teste',
+    ]);
+
+    $unit = PoliceUnit::create($attributes);
+
+    expect($unit->fresh()->toArray())->toMatchArray($attributes);
+});
+
+test('missing details can be completed later without changing identity or location', function () {
+    $unit = PoliceUnit::factory()->withLocation()->create();
+    $identity = $unit->only(['id', 'code', 'name', 'acronym', 'location']);
+    $details = [
+        'commander' => 'Comandante de teste',
+        'deputy_commander' => 'Subcomandante de teste',
+        'phone' => '(98) 3000-0000',
+        'email' => 'unidade@example.com',
+        'served_localities' => 'Bairro de teste; Cidade de teste',
+    ];
+
+    $unit->update($details);
+
+    expect($unit->fresh()->toArray())->toMatchArray([...$identity, ...$details]);
+});
+
+test('optional details can be cleared without deleting the police unit', function () {
+    $unit = PoliceUnit::factory()->create([
+        'commander' => 'Comandante de teste',
+        'deputy_commander' => 'Subcomandante de teste',
+        'phone' => '(98) 3000-0000',
+        'email' => 'unidade@example.com',
+        'served_localities' => 'Cidade de teste',
+    ]);
+
+    $unit->update([
+        'commander' => null,
+        'deputy_commander' => null,
+        'phone' => null,
+        'email' => null,
+        'served_localities' => null,
+    ]);
+
+    $this->assertDatabaseHas('police_units', [
+        'id' => $unit->id,
+        'commander' => null,
+        'deputy_commander' => null,
+        'phone' => null,
+        'email' => null,
+        'served_localities' => null,
+    ]);
+});
