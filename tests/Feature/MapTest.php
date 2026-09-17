@@ -52,11 +52,19 @@ test('map configuration cannot break out of its HTML attribute', function () {
         ->assertDontSee('<script>alert(1)</script>', false);
 });
 
-test('the map receives only located units and the fields needed for markers', function () {
+test('the map receives only located units and the fields needed for marker details', function () {
     $unit = PoliceUnit::factory()->withLocation()->create([
-        'commander' => 'Private commander',
-        'phone' => 'Private phone',
-        'email' => 'private@example.com',
+        'unit_type' => 'Operacional',
+        'address' => 'Rua de teste, 10',
+        'commander' => 'Comandante de teste',
+        'deputy_commander' => 'Subcomandante de teste',
+        'phone' => '(98) 3000-0000',
+        'email' => 'unidade@example.com',
+        'served_localities' => 'Bairro de teste (parcial); Cidade de teste',
+        'officers_count' => 45,
+        'enlisted_count' => 245,
+        'served_population' => 275000,
+        'metrics_are_demo' => true,
     ]);
     PoliceUnit::factory()->create();
 
@@ -67,8 +75,7 @@ test('the map receives only located units and the fields needed for markers', fu
     @$document->loadHTML($response->getContent());
     $map = $document->getElementsByTagName('mapa-orion-map')->item(0);
     expect(json_decode($map->getAttribute('units'), true, flags: JSON_THROW_ON_ERROR))
-        ->toBe([$unit->only(['code', 'name', 'acronym', 'location'])]);
-    $response->assertDontSee('Private commander')->assertDontSee('Private phone')->assertDontSee('private@example.com');
+        ->toBe([$unit->fresh()->only(['code', 'name', 'acronym', 'unit_type', 'address', 'commander', 'deputy_commander', 'phone', 'email', 'served_localities', 'location', 'officers_count', 'enlisted_count', 'served_population', 'metrics_are_demo', 'total_personnel'])]);
 });
 
 test('the map renders with an empty marker list when no units have a location', function () {
@@ -98,4 +105,56 @@ test('guests cannot access unit marker data', function () {
     $this->get('/')
         ->assertRedirect('/login')
         ->assertDontSee('restricted-unit');
+});
+
+test('unfilled unit details remain null in the map data', function () {
+    PoliceUnit::factory()->withLocation()->create();
+
+    $response = $this->actingAs(User::factory()->create())->get('/');
+
+    $response->assertOk();
+    $document = new DOMDocument;
+    @$document->loadHTML($response->getContent());
+    $map = $document->getElementsByTagName('mapa-orion-map')->item(0);
+    expect(json_decode($map->getAttribute('units'), true, flags: JSON_THROW_ON_ERROR)[0])
+        ->toMatchArray([
+            'unit_type' => null,
+            'address' => null,
+            'commander' => null,
+            'deputy_commander' => null,
+            'phone' => null,
+            'email' => null,
+            'served_localities' => null,
+            'officers_count' => null,
+            'enlisted_count' => null,
+            'total_personnel' => null,
+            'served_population' => null,
+            'metrics_are_demo' => false,
+        ]);
+});
+
+test('unit details use the reference dialog with accessible closing controls', function () {
+    $response = $this->actingAs(User::factory()->create())->get('/');
+
+    $response->assertOk()
+        ->assertSee('Comando & Gestão Operacional', false)
+        ->assertSee('Bairros e setores abrangidos')
+        ->assertSee('Efetivo Total')
+        ->assertSee('População')
+        ->assertDontSee('unit-popup');
+    $document = new DOMDocument;
+    @$document->loadHTML($response->getContent());
+    $xpath = new DOMXPath($document);
+    $dialog = $xpath->query('//dialog[@data-unit-dialog]')->item(0);
+    expect($dialog->getAttribute('aria-labelledby'))->toBe('unit-details-title');
+    expect($xpath->query('.//button[@data-unit-close]', $dialog)->length)->toBe(2);
+    expect($xpath->query('.//*[@id="unit-details-title"]', $dialog)->length)->toBe(1);
+    expect($dialog->hasAttribute('open'))->toBeFalse();
+    expect($xpath->query('.//*[@data-unit-field="latitude" or @data-unit-field="longitude" or @data-unit-field="code"]', $dialog)->length)->toBe(0);
+    expect($dialog->textContent)->not->toContain('Latitude', 'Longitude', 'Código');
+    expect($xpath->query('.//*[@data-unit-metric]', $dialog)->length)->toBe(4);
+    expect($xpath->query('.//*[@data-unit-metric]//p[@title="Não informado"]', $dialog)->length)->toBe(4);
+    expect($xpath->query('.//*[@data-unit-metric]//*[local-name()="circle"]', $dialog)->length)->toBe(3);
+    expect($xpath->query('.//*[@data-unit-command and @hidden]', $dialog)->length)->toBe(1);
+    expect($xpath->query('.//*[@data-unit-localities and @hidden]', $dialog)->length)->toBe(1);
 });

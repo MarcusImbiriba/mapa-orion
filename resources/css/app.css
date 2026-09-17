@@ -42,3 +42,36 @@ mapa-orion-map .leaflet-control a:focus-visible {
     outline: 3px solid #d97706;
     outline-offset: 2px;
 }
+
+mapa-orion-map [data-unit-dialog]::backdrop {
+    background: rgb(2 6 23 / 70%);
+    backdrop-filter: blur(4px);
+}
+
+mapa-orion-map [data-unit-dialog] [hidden] {
+    display: none !important;
+}
+
+.unit-details-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: #1e293b #090d16;
+    overscroll-behavior: contain;
+}
+
+mapa-orion-map [data-unit-dialog] {
+    --color-slate-950: #090e1d;
+    --color-slate-900: #161d2e;
+    --color-slate-800: #232d3d;
+    --color-slate-700: #364356;
+    --color-slate-400: #93a2b7;
+    --color-amber-400: #fbbe29;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+mapa-orion-map [data-unit-command] {
+    background: #0e1524;
+}
+
+mapa-orion-map [data-unit-dialog] footer {
+    background: #0b1220;
+}

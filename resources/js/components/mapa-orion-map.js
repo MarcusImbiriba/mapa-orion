@@ -18,6 +18,8 @@ class MapaOrionMap extends HTMLElement {
     #events;
     #center;
     #zoom;
+    #unitDialog;
+    #returnFocus;
 
     connectedCallback() {
         if (this.#map) {
@@ -65,6 +67,17 @@ class MapaOrionMap extends HTMLElement {
                 })
                 .addTo(this.#map);
 
+            this.#unitDialog = this.querySelector('[data-unit-dialog]');
+            this.#unitDialog.querySelectorAll('[data-unit-close]').forEach((button) => {
+                button.addEventListener('click', () => this.#unitDialog.close(), {
+                    signal: this.#events.signal,
+                });
+            });
+            this.#unitDialog.addEventListener('close', () => {
+                this.#returnFocus?.focus({ preventScroll: true });
+                this.#returnFocus = undefined;
+            }, { signal: this.#events.signal });
+
             const units = JSON.parse(this.getAttribute('units') ?? '[]');
 
             for (const unit of units) {
@@ -84,11 +97,20 @@ class MapaOrionMap extends HTMLElement {
 
                 const label = `${unit.acronym} — ${unit.name}`;
 
-                L.marker([latitude, longitude], {
+                const marker = L.marker([latitude, longitude], {
                     icon: unitIcon,
                     title: label,
                     alt: label,
                 }).addTo(this.#map);
+
+                marker.on('click', () => this.#showUnitDetails(unit, marker.getElement()));
+                marker.on('keydown', ({ originalEvent }) => {
+                    if (originalEvent.key === 'Enter' || originalEvent.key === ' ') {
+                        originalEvent.preventDefault();
+                        originalEvent.stopPropagation();
+                        this.#showUnitDetails(unit, marker.getElement());
+                    }
+                });
             }
 
             recenterButton.disabled = false;
@@ -108,9 +130,66 @@ class MapaOrionMap extends HTMLElement {
         }
     }
 
+    #showUnitDetails(unit, trigger) {
+        this.#unitDialog.querySelectorAll('[data-unit-field]').forEach((element) => {
+            const value = unit[element.dataset.unitField];
+            const hasValue = value !== null && value !== undefined && String(value).trim() !== '';
+            element.textContent = hasValue ? String(value) : '';
+            const row = element.closest('[data-unit-row]');
+
+            if (row) {
+                row.hidden = !hasValue;
+            }
+        });
+
+        const numberFormat = new Intl.NumberFormat('pt-BR');
+        const compactFormat = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 });
+
+        this.#unitDialog.querySelectorAll('[data-unit-metric]').forEach((element) => {
+            const field = element.dataset.unitMetric;
+            const value = unit[field];
+            const hasValue = Number.isSafeInteger(value) && value >= 0;
+            const fullValue = hasValue ? numberFormat.format(value) : 'Não informado';
+            let displayValue = hasValue ? fullValue : '—';
+
+            if (hasValue && field === 'served_population' && value >= 1000) {
+                const divisor = value >= 1000000 ? 1000000 : 1000;
+                displayValue = `${compactFormat.format(value / divisor)}${divisor === 1000000 ? 'M' : 'k'}`;
+            }
+
+            const accessibleValue = hasValue && field === 'served_population' ? `${fullValue} habitantes` : fullValue;
+            element.querySelector('[data-unit-metric-value]').textContent = displayValue;
+            element.querySelector('[data-unit-metric-accessible]').textContent = accessibleValue;
+            element.querySelector('p').title = accessibleValue;
+        });
+
+        this.#unitDialog.querySelector('[data-unit-metrics-demo]').hidden = unit.metrics_are_demo !== true;
+
+        const command = this.#unitDialog.querySelector('[data-unit-command]');
+        command.hidden = !Array.from(command.querySelectorAll('[data-unit-row]')).some((row) => !row.hidden);
+
+        const localities = (unit.served_localities ?? '').split(';').map((value) => value.trim()).filter(Boolean);
+        const list = this.#unitDialog.querySelector('[data-unit-localities-list]');
+        list.replaceChildren();
+
+        for (const locality of localities) {
+            const badge = document.createElement('span');
+            badge.className = 'rounded-lg border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs font-medium text-slate-300 wrap-anywhere';
+            badge.textContent = locality;
+            list.append(badge);
+        }
+
+        this.#unitDialog.querySelector('[data-unit-localities-count]').textContent = String(localities.length);
+        this.#unitDialog.querySelector('[data-unit-localities]').hidden = localities.length === 0;
+        this.#returnFocus = trigger;
+        this.#unitDialog.showModal();
+    }
+
     disconnectedCallback() {
         this.#resizeObserver?.disconnect();
         this.#events?.abort();
+        this.#unitDialog?.close();
+        this.#returnFocus = undefined;
         this.#map?.remove();
         this.#map = undefined;
 

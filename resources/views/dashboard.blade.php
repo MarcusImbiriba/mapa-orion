@@ -46,6 +46,8 @@
                    class="absolute bottom-12 left-3 z-[1000] max-w-[calc(100%_-_5rem)] rounded-lg border border-slate-700 bg-slate-900/95 px-3 py-2 text-sm text-slate-100 shadow-lg">
                     Carregando o mapa…
                 </p>
+                <x-unit-details />
+
                 <noscript>
                     <p class="absolute inset-x-3 top-24 z-[1000] rounded-lg bg-slate-900 p-3 text-sm text-slate-100">
                         Ative o JavaScript no navegador para visualizar o mapa.
