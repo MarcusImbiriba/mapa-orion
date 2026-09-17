@@ -3,6 +3,7 @@
 use App\Models\PoliceUnit;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Validation\ValidationException;
 
 uses(LazilyRefreshDatabase::class);
 
@@ -165,3 +166,76 @@ test('optional details can be cleared without deleting the police unit', functio
         'served_localities' => null,
     ]);
 });
+
+test('current metrics preserve zero and unknown values when calculating personnel', function (?int $officers, ?int $enlisted, ?int $total) {
+    $unit = PoliceUnit::factory()->create([
+        'officers_count' => $officers,
+        'enlisted_count' => $enlisted,
+        'served_population' => null,
+    ])->fresh();
+
+    expect($unit->total_personnel)->toBe($total);
+    expect($unit->served_population)->toBeNull();
+})->with([
+    'known personnel' => [45, 245, 290],
+    'no personnel assigned' => [0, 0, 0],
+    'no officers' => [0, 80, 80],
+    'no enlisted' => [12, 0, 12],
+    'unknown officers' => [null, 245, null],
+    'unknown enlisted' => [45, null, null],
+    'both unknown' => [null, null, null],
+]);
+
+test('current metrics can be replaced and cleared without retaining an outdated total', function () {
+    $unit = PoliceUnit::factory()->create([
+        'officers_count' => 45,
+        'enlisted_count' => 245,
+        'served_population' => 275000,
+        'metrics_are_demo' => true,
+    ]);
+
+    $unit->update([
+        'officers_count' => 50,
+        'enlisted_count' => 260,
+        'served_population' => 0,
+        'personnel_reference_date' => '2026-09-16',
+        'population_reference_year' => 2026,
+        'population_source' => 'Fonte de teste',
+        'metrics_are_demo' => false,
+    ]);
+
+    expect($unit->fresh()->toArray())->toMatchArray([
+        'officers_count' => 50,
+        'enlisted_count' => 260,
+        'served_population' => 0,
+        'personnel_reference_date' => '2026-09-16',
+        'population_reference_year' => 2026,
+        'population_source' => 'Fonte de teste',
+        'metrics_are_demo' => false,
+    ]);
+    expect($unit->total_personnel)->toBe(310);
+
+    $unit->update(['officers_count' => null, 'served_population' => null]);
+
+    expect($unit->fresh()->total_personnel)->toBeNull();
+    $this->assertDatabaseHas('police_units', ['id' => $unit->id, 'officers_count' => null, 'served_population' => null]);
+});
+
+test('invalid counts cannot replace existing metrics', function (string $field, mixed $value) {
+    $unit = PoliceUnit::factory()->create([
+        'officers_count' => 45,
+        'enlisted_count' => 245,
+        'served_population' => 275000,
+    ]);
+
+    expect(fn () => $unit->update([$field => $value]))
+        ->toThrow(ValidationException::class);
+
+    $this->assertDatabaseHas('police_units', [
+        'id' => $unit->id,
+        'officers_count' => 45,
+        'enlisted_count' => 245,
+        'served_population' => 275000,
+    ]);
+})->with(['officers_count', 'enlisted_count', 'served_population'])
+    ->with(['negative' => -1, 'fraction' => 1.5, 'text' => 'unknown', 'too large' => 2147483648]);
