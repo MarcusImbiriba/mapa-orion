@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="public/readme-header.png" alt="Mapa Orion — PMMA: emblema e constelação sobre fundo azul-marinho" width="1000">
+</p>
+
 # Mapa Orion
 
 Aplicação web para visualizar unidades policiais em um mapa e consultar informações cadastrais, efetivo e população atendida, com acesso autenticado.
