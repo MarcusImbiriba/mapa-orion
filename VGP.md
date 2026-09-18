@@ -1,4 +1,4 @@
-# Mapa Orion — Implementação Atual
+# Mapa Orion — Visão Geral do Projeto
 
 Atualizado em **17/09/2026** a partir do código, das configurações, das migrações e dos testes do projeto em `/home/meci/Dev/WebApp/MapaOrion/mapa.orion`.
 
