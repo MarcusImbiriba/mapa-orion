@@ -1,3 +1,5 @@
+import './components/map-header.js';
+
 if (document.querySelector('mapa-orion-map')) {
     import('./components/mapa-orion-map.js').catch((error) => {
         const status = document.querySelector('[data-map-status]');
