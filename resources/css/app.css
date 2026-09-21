@@ -75,6 +75,14 @@ mapa-orion-map [data-unit-dialog] footer {
     background: #0b1220;
 }
 
+.map-header {
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+mapa-orion-header [hidden] {
+    display: none !important;
+}
+
 .map-workspace {
     --sidebar-width: min(24rem, calc(100cqw - 3.5rem));
     container-type: size;

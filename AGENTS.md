@@ -161,12 +161,478 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 </laravel-boost-guidelines>
 
 
-## Procedimento de commits e sincronização
+# Mapa Orion — Regras específicas do projeto
 
-- Antes de executar cada comando Git ou GitHub CLI, mostrar o comando e explicar brevemente, em português, sua finalidade e o efeito das opções utilizadas, para que o usuário possa repetir o procedimento manualmente.
-- Preferir a branch principal (`main`) e commits pequenos, com uma mudança coerente por commit.
-- Antes do commit, conferir a branch e os arquivos pendentes com `git status --short --branch`, revisar o diff e executar `git diff --check`.
-- Preparar somente os arquivos relacionados à tarefa, indicando seus caminhos em `git add`. Conferir a seleção com `git diff --cached` e `git diff --cached --check` antes de criar o commit.
-- Usar mensagens de commit claras e explicar a diferença entre preparar arquivos (`add`), registrar no histórico local (`commit`) e enviar ao remoto (`push`).
-- Após o push, conferir se não restaram alterações inesperadas e comparar o commit local (`git rev-parse HEAD`) com a branch remota (`git ls-remote origin refs/heads/main`). Só afirmar que houve sincronização após confirmar os identificadores.
-- Ao concluir, informar o identificador e a mensagem do commit, o resultado do envio e eventuais alterações pendentes. Distinguir código versionado de dados locais, como o banco SQLite.
+As regras desta seção são específicas do projeto **Mapa Orion**.
+
+Em caso de conflito entre estas regras e instruções anteriores do Laravel Boost, **estas regras específicas do projeto prevalecem**.
+
+Essa precedência aplica-se especialmente a instruções que orientem o agente a executar comandos de terminal, Artisan, Composer, NPM, testes, formatadores, Git, GitHub CLI, navegador, banco de dados ou outras operações no ambiente.
+
+---
+
+## Contexto técnico
+
+O Mapa Orion utiliza:
+
+- Laravel;
+- SQLite;
+- Blade;
+- Datastar;
+- Leaflet 1.9.4;
+- Tailwind CSS;
+- Lucide.
+
+A aplicação não deve utilizar React, Vue, Livewire, Inertia, Breeze, Jetstream ou outro starter kit, salvo decisão futura expressamente solicitada pelo usuário.
+
+A autenticação utiliza nome de usuário (`username`) e senha.
+
+As geometrias geográficas são armazenadas em formato GeoJSON no SQLite.
+
+Leaflet deve permanecer encapsulado em um Web Component próprio.
+
+Datastar não deve manipular diretamente o DOM interno criado pelo Leaflet nem objetos internos da biblioteca.
+
+A comunicação entre o restante da aplicação e o componente do mapa deve ocorrer por propriedades, métodos públicos e eventos personalizados.
+
+O Web Component do mapa deve utilizar inicialmente Light DOM, e não Shadow DOM, salvo necessidade futura explicitamente identificada.
+
+---
+
+# Política de atuação do Codex
+
+O Codex deve ser utilizado prioritariamente para:
+
+- analisar arquivos do projeto;
+- ler código existente;
+- pesquisar documentação técnica quando necessário;
+- criar código-fonte;
+- editar código-fonte;
+- criar ou editar testes;
+- criar ou editar arquivos de configuração pertencentes ao projeto;
+- analisar erros e resultados fornecidos pelo usuário.
+
+O Codex **não deve executar tarefas operacionais no ambiente**, salvo quando o usuário solicitar explicitamente uma exceção.
+
+---
+
+## Execução manual obrigatória
+
+Por padrão, o Codex NÃO deve executar:
+
+- comandos de terminal ou shell;
+- `php artisan`;
+- `composer`;
+- `npm`;
+- `npx`;
+- instalação ou atualização de dependências;
+- migrations;
+- seeders;
+- servidores de desenvolvimento;
+- builds;
+- Laravel Pint;
+- linters;
+- formatadores;
+- Pest;
+- PHPUnit;
+- testes automatizados;
+- testes no navegador;
+- testes de interface;
+- automação de navegador;
+- consultas ao banco destinadas à validação da implementação;
+- Git;
+- GitHub CLI;
+- criação de branches;
+- `git add`;
+- `git commit`;
+- `git merge`;
+- `git rebase`;
+- `git push`;
+- criação ou fechamento de GitHub Issues;
+- criação ou merge de Pull Requests.
+
+Essas operações serão executadas manualmente pelo usuário.
+
+Quando uma regra anterior do Laravel Boost determinar que algum desses comandos deve ser executado, o Codex deve **fornecer o comando no checklist manual em vez de executá-lo**.
+
+Por exemplo, se as regras Laravel determinarem:
+
+```text
+vendor/bin/pint --dirty --format agent
+```
+
+o Codex não deve executá-lo.
+
+Deve incluí-lo no checklist manual para execução pelo usuário.
+
+O mesmo princípio vale para Artisan, testes, Composer, NPM, Git e demais comandos.
+
+---
+
+## Inspeção permitida
+
+A proibição de execução de comandos não impede o Codex de:
+
+- abrir arquivos;
+- ler arquivos;
+- pesquisar o código;
+- comparar arquivos;
+- consultar documentação;
+- utilizar documentação do Laravel Boost;
+- inspecionar arquivos de configuração;
+- analisar `composer.json`;
+- analisar `composer.lock`;
+- analisar `package.json`;
+- analisar migrations existentes;
+- analisar Models, Controllers, Blade views, JavaScript e demais arquivos do repositório.
+
+Sempre que uma informação puder ser obtida diretamente dos arquivos existentes, prefira essa abordagem em vez de solicitar que o usuário execute um comando.
+
+---
+
+# Desenvolvimento incremental
+
+Cada solicitação deve ser tratada como uma unidade pequena e coerente de trabalho.
+
+Antes de editar código, o Codex deve analisar apenas os arquivos necessários ao escopo atual.
+
+Não amplie automaticamente o escopo para funcionalidades relacionadas que não tenham sido solicitadas.
+
+Quando identificar uma melhoria ou tarefa adicional fora do escopo, informe-a separadamente para que possa ser transformada em outra GitHub Issue.
+
+Não implemente trabalho adicional apenas porque ele parece conveniente.
+
+---
+
+# GitHub Issues
+
+Toda etapa funcional relevante do desenvolvimento deve, preferencialmente, estar associada a uma GitHub Issue.
+
+A Issue representa uma **unidade de trabalho**, e não cada comando necessário para executá-la.
+
+Exemplo adequado:
+
+```text
+Issue #12 — Implementar autenticação por username
+```
+
+Exemplos inadequados:
+
+```text
+Issue — Executar migration
+Issue — Executar npm run build
+Issue — Fazer commit
+```
+
+Comandos, verificações e testes pertencem ao checklist de validação da Issue.
+
+Quando o usuário informar o número ou conteúdo de uma Issue, o Codex deve limitar suas alterações ao escopo definido nela.
+
+Se a tarefa for grande demais para uma única implementação coerente, o Codex deve recomendar sua divisão em Issues ou sub-issues menores, mas não deve criá-las automaticamente.
+
+---
+
+# Branches
+
+Quando uma Issue for implementada em branch própria, a criação e o gerenciamento da branch serão realizados manualmente pelo usuário.
+
+Uma convenção recomendada é:
+
+```text
+<numero-da-issue>-<descricao-curta>
+```
+
+Exemplo:
+
+```text
+12-authentication
+```
+
+O Codex pode sugerir o nome da branch, mas não deve criá-la.
+
+---
+
+# Commits
+
+O Codex não deve executar commits.
+
+Ao concluir uma implementação validada, pode sugerir uma mensagem de commit curta e semanticamente clara.
+
+Os commits devem representar alterações pequenas e coerentes.
+
+Evite misturar funcionalidades independentes em um mesmo commit.
+
+O usuário será responsável por:
+
+```text
+git status
+git diff
+git add
+git commit
+git push
+```
+
+e demais operações Git.
+
+O Codex apenas fornecerá esses comandos quando forem necessários.
+
+---
+
+# GitHub
+
+Operações no GitHub são responsabilidade manual do usuário.
+
+O Codex não deve:
+
+- criar Issues;
+- fechar Issues;
+- realizar push;
+- criar Pull Requests;
+- fazer merge;
+- manipular branches remotas.
+
+O Codex pode fornecer:
+
+- título sugerido para uma Issue;
+- descrição sugerida;
+- critérios de aceitação;
+- nome sugerido para branch;
+- mensagem sugerida para commit;
+- comandos Git/GitHub que o usuário deverá executar manualmente.
+
+---
+
+# Checklist obrigatório após alterações
+
+Ao concluir qualquer tarefa que envolva criação ou edição de código, o Codex deve apresentar um **checklist manual de validação**.
+
+Inclua somente itens pertinentes à alteração realizada.
+
+O checklist deve seguir esta estrutura quando aplicável:
+
+## 1. Arquivos alterados
+
+Informar:
+
+```text
+Criado:
+- caminho/do/arquivo
+
+Modificado:
+- caminho/do/arquivo
+
+Removido:
+- caminho/do/arquivo
+```
+
+Acrescente uma descrição curta da finalidade de cada alteração.
+
+---
+
+## 2. Comandos manuais
+
+Para cada comando necessário:
+
+```text
+[ ] Executar:
+
+<comando>
+
+Resultado esperado:
+<descrição objetiva>
+```
+
+Não execute o comando.
+
+Os comandos devem aparecer na ordem correta.
+
+---
+
+## 3. Testes automatizados
+
+Quando houver testes relacionados:
+
+```text
+[ ] Executar:
+
+<comando do teste>
+
+Resultado esperado:
+<resultado>
+```
+
+Prefira o conjunto mínimo de testes capaz de validar a alteração.
+
+Se todos os testes específicos passarem, poderá ser indicado posteriormente o comando da suíte completa quando apropriado.
+
+---
+
+## 4. Formatação e análise estática
+
+Quando aplicável, indicar manualmente comandos como:
+
+```text
+vendor/bin/pint --dirty --format agent
+```
+
+ou outros verificadores configurados no projeto.
+
+O Codex não deve executá-los.
+
+---
+
+## 5. Validação funcional
+
+Descrever testes manuais objetivos.
+
+Exemplo:
+
+```text
+[ ] Acessar a tela de login.
+
+Ação:
+Informar username e senha válidos.
+
+Resultado esperado:
+Usuário autenticado e redirecionado para a página protegida.
+```
+
+Não utilize instruções vagas como:
+
+```text
+Verificar se está funcionando.
+```
+
+---
+
+## 6. Verificação Git
+
+Quando a implementação estiver pronta para revisão:
+
+```text
+[ ] Conferir branch e alterações:
+
+git status --short --branch
+```
+
+```text
+[ ] Revisar alterações não preparadas:
+
+git diff
+```
+
+```text
+[ ] Verificar problemas de whitespace:
+
+git diff --check
+```
+
+Somente após a validação funcional:
+
+```text
+[ ] Preparar explicitamente os arquivos relacionados:
+
+git add <arquivo1> <arquivo2>
+```
+
+Evite sugerir `git add .` quando for possível listar explicitamente os arquivos relacionados à tarefa.
+
+Depois:
+
+```text
+[ ] Conferir alterações preparadas:
+
+git diff --cached
+```
+
+```text
+[ ] Verificar alterações preparadas:
+
+git diff --cached --check
+```
+
+Por fim, sugerir a mensagem:
+
+```text
+git commit -m "<mensagem sugerida>"
+```
+
+O usuário decidirá se fará o commit.
+
+---
+
+# Retorno do usuário
+
+O usuário executará manualmente o checklist.
+
+Resultados bem-sucedidos poderão ser retornados apenas como:
+
+```text
+✅ item ou comando
+```
+
+Não solicite a saída completa de comandos executados com sucesso.
+
+Quando houver falha, o usuário poderá retornar:
+
+```text
+❌ item ou comando
+
+Erro:
+<trecho relevante>
+```
+
+Ao receber o retorno, concentre a análise somente nos itens que apresentaram problema.
+
+Não solicite logs completos quando poucas linhas forem suficientes para diagnosticar o erro.
+
+---
+
+# Economia de contexto e tokens
+
+Evite produzir ou solicitar conteúdo desnecessariamente extenso.
+
+Não solicite:
+
+- saída completa de comandos que tiveram sucesso;
+- logs completos quando apenas um trecho é relevante;
+- dumps extensos do banco;
+- conteúdo de arquivos que já podem ser lidos diretamente;
+- repetição do contexto do projeto que já esteja disponível;
+- resultados completos de testes quando apenas a falha é necessária.
+
+Prefira informações mínimas suficientes para diagnosticar e corrigir o problema.
+
+---
+
+# Fluxo padrão de trabalho
+
+O fluxo padrão do Mapa Orion é:
+
+```text
+GitHub Issue
+      ↓
+usuário prepara branch, quando aplicável
+      ↓
+Codex analisa arquivos
+      ↓
+Codex cria/edita código
+      ↓
+Codex gera checklist
+      ↓
+usuário executa comandos e testes
+      ↓
+usuário retorna resultados
+      ↓
+Codex corrige somente se necessário
+      ↓
+usuário revisa git diff
+      ↓
+usuário executa commit/push/merge
+      ↓
+usuário encerra a Issue
+```
+
+O Codex deve permanecer focado principalmente na **análise, criação e edição do código do Mapa Orion**.
+
+A execução operacional e a validação final permanecem sob controle do usuário.

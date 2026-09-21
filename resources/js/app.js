@@ -1,3 +1,4 @@
+import './components/map-header.js';
 import './components/operations-sidebar.js';
 
 if (document.querySelector('mapa-orion-map')) {

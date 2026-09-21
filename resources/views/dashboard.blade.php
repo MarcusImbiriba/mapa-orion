@@ -1,23 +1,6 @@
 <x-layouts.app title="Mapa">
     <div class="flex h-svh flex-col overflow-hidden">
-        <header class="shrink-0 border-b border-slate-800 bg-slate-900">
-            <div class="flex items-center justify-between gap-4 px-4 py-3 sm:px-6">
-                <div class="min-w-0">
-                    <h1 class="text-lg font-semibold tracking-tight sm:text-xl">Mapa Orion</h1>
-                    <p class="truncate text-xs text-slate-400">Bem-vindo, {{ auth()->user()->name }}.</p>
-                </div>
-                <form method="POST" action="{{ route('logout') }}"
-                      data-signals:signingout="false"
-                      data-indicator:signingout
-                      data-on:submit="{{ datastar()->post(route('logout'), ['contentType' => 'form', 'retry' => 'never']) }}">
-                    @csrf
-                    <button type="submit" data-attr:disabled="$signingout"
-                            class="rounded-lg border border-slate-700 px-4 py-2 text-sm font-medium transition hover:border-amber-300 hover:text-amber-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-300 disabled:opacity-60">
-                        <span data-text="$signingout ? 'Saindo…' : 'Sair'">Sair</span>
-                    </button>
-                </form>
-            </div>
-        </header>
+        <x-map-header />
 
         <main class="map-workspace relative isolate min-h-0 flex-1" aria-label="Mapa de São Luís">
             <mapa-orion-map id="orion-map"
