@@ -1,5 +1,5 @@
 <x-layouts.app title="Mapa">
-    <div class="flex h-svh min-h-[28rem] flex-col">
+    <div class="flex h-svh flex-col overflow-hidden">
         <header class="shrink-0 border-b border-slate-800 bg-slate-900">
             <div class="flex items-center justify-between gap-4 px-4 py-3 sm:px-6">
                 <div class="min-w-0">
@@ -19,7 +19,7 @@
             </div>
         </header>
 
-        <main class="min-h-0 flex-1" aria-label="Mapa de São Luís">
+        <main class="map-workspace relative isolate min-h-0 flex-1" aria-label="Mapa de São Luís">
             <mapa-orion-map id="orion-map"
                             latitude="{{ config('map.center.latitude') }}"
                             longitude="{{ config('map.center.longitude') }}"
@@ -31,14 +31,15 @@
                             data-ignore-morph>
                 <div data-map-canvas data-ignore aria-label="Mapa interativo. Use as setas para navegar e mais ou menos para ajustar o zoom."></div>
 
-                <div class="pointer-events-none absolute inset-x-3 top-3 z-[1000] flex items-start justify-between gap-3 sm:inset-x-5 sm:top-5">
-                    <div class="rounded-xl border border-slate-700 bg-slate-900/95 px-3 py-2 shadow-lg">
+                <div data-map-toolbar class="pointer-events-none absolute inset-x-3 top-3 z-[1000] flex items-start justify-between gap-3 sm:inset-x-5 sm:top-5">
+                    <div data-map-location-label class="rounded-xl border border-slate-700 bg-slate-900/95 px-3 py-2 shadow-lg">
                         <p class="text-sm font-semibold text-amber-200">São Luís</p>
                         <p class="text-xs text-slate-300">Maranhão</p>
                     </div>
-                    <button type="button" data-map-recenter disabled
-                            class="pointer-events-auto rounded-xl border border-slate-700 bg-slate-900/95 px-3 py-2 text-sm font-medium text-slate-100 shadow-lg transition hover:border-amber-300 hover:text-amber-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-300 disabled:opacity-60">
-                        Recentralizar
+                    <button type="button" data-map-recenter disabled title="Recentralizar"
+                            class="pointer-events-auto flex min-h-10 items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-900/95 px-3 py-2 text-sm font-medium text-slate-100 shadow-lg transition hover:border-amber-300 hover:text-amber-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-300 disabled:opacity-60">
+                        <svg class="size-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>
+                        <span data-map-recenter-label>Recentralizar</span>
                     </button>
                 </div>
 
@@ -54,6 +55,7 @@
                     </p>
                 </noscript>
             </mapa-orion-map>
+            <x-operations-sidebar />
         </main>
     </div>
 </x-layouts.app>

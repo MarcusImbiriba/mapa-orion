@@ -12,9 +12,8 @@
 mapa-orion-map {
     display: block;
     position: relative;
-    isolation: isolate;
     height: 100%;
-    min-height: 18rem;
+    min-height: 0;
 }
 
 mapa-orion-map [data-map-canvas] {
@@ -74,4 +73,91 @@ mapa-orion-map [data-unit-command] {
 
 mapa-orion-map [data-unit-dialog] footer {
     background: #0b1220;
+}
+
+.map-workspace {
+    --sidebar-width: min(24rem, calc(100cqw - 3.5rem));
+    container-type: size;
+}
+
+operations-sidebar {
+    display: block;
+    position: absolute;
+    inset: 0 auto 2rem 0;
+    z-index: 10;
+    width: 0;
+    overscroll-behavior: contain;
+}
+
+operations-sidebar[data-open] {
+    width: var(--sidebar-width);
+}
+
+operations-sidebar [hidden] {
+    display: none !important;
+}
+
+operations-sidebar:not([data-open]) [data-sidebar-chevron] {
+    transform: rotate(180deg);
+}
+
+operations-sidebar [data-sidebar-units],
+operations-sidebar [data-sidebar-scroll] {
+    scrollbar-width: thin;
+    scrollbar-color: #334155 #0f172a;
+    overscroll-behavior: contain;
+}
+
+.map-workspace:has(operations-sidebar[data-open]) [data-map-toolbar] {
+    left: calc(var(--sidebar-width) + 3rem);
+    right: 0.5rem;
+    justify-content: flex-end;
+}
+
+.map-workspace:has(operations-sidebar[data-open]) [data-map-location-label] {
+    margin-right: auto;
+}
+
+.map-workspace:has(operations-sidebar[data-open]) [data-map-status] {
+    z-index: 1001;
+    bottom: 6rem;
+    left: 0.75rem;
+    right: 0.75rem;
+    max-width: fit-content;
+}
+
+@container (max-width: 42rem) {
+    .map-workspace:has(operations-sidebar[data-open]) [data-map-location-label] {
+        display: none;
+    }
+
+    .map-workspace:has(operations-sidebar[data-open]) [data-map-toolbar] {
+        top: 3.5rem;
+    }
+
+    .map-workspace:has(operations-sidebar[data-open]) [data-map-recenter-label] {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+    }
+}
+
+@container (max-height: 24rem) {
+    operations-sidebar [data-sidebar-content] {
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+
+    operations-sidebar [data-sidebar-scroll] {
+        flex: 1 0 auto;
+    }
+
+    operations-sidebar [data-sidebar-units] {
+        flex: none;
+        overflow: visible;
+    }
 }
