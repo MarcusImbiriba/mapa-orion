@@ -221,7 +221,11 @@ Os marcadores têm rótulos de identificação e podem abrir detalhes por clique
 
 ## 9. Cadastro e manutenção atuais
 
-Não existe interface de manutenção de unidades nem comando dedicado de importação no código consultado. O cadastro é persistido pelo backend no modelo `PoliceUnit`; o método operacional de inserção/importação em lote não está definido por este documento.
+A carga inicial de unidades foi adicionada em **22/09/2026**. `DatabaseSeeder` integra a carga de `PoliceUnitSeeder`, que declara diretamente em arrays PHP os 19 campos de domínio das 16 unidades presentes no SQLite do próprio `mapa.orion` nessa data. O arquivo `database/seeders/data/police_units.json` foi preservado como referência da extração, sem leitura ou decodificação pelo seeder. IDs internos e timestamps não integram o catálogo. Todos os indicadores dessa carga permanecem marcados como demonstrativos.
+
+Após as migrações, `php artisan db:seed --no-interaction` insere as unidades ausentes em uma transação, identificando-as por `code`. A repetição preserva registros existentes, inclusive edições posteriores e unidades adicionais; não sincroniza alterações do catálogo com registros já cadastrados. Nenhum usuário ou credencial é criado por essa carga.
+
+Não existe interface de manutenção de unidades nem importador geral. O cadastro é persistido pelo backend no modelo `PoliceUnit`; a manutenção posterior continua dependendo de um procedimento administrativo.
 
 Para preparar um cadastro compatível com o estado atual:
 
