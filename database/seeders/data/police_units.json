@@ -1,0 +1,569 @@
+[
+    {
+        "code": "qcg-pmma",
+        "name": "Quartel do Comando Geral",
+        "acronym": "QCG",
+        "unit_type": "COMANDO",
+        "region": null,
+        "address": "Av. Colares Moreira, S/N - Calhau, São Luís - MA",
+        "location": {
+            "type": "Point",
+            "coordinates": [
+                -44.27931417089881,
+                -2.494631631639752
+            ]
+        },
+        "commander": "Cel. Wallace Amorim",
+        "deputy_commander": "Cel Nicolau Sauaia",
+        "phone": "(98) 3268-5030",
+        "email": null,
+        "served_localities": null,
+        "officers_count": 120,
+        "enlisted_count": 380,
+        "served_population": 1150000,
+        "personnel_reference_date": null,
+        "population_reference_year": null,
+        "population_source": null,
+        "metrics_are_demo": true
+    },
+    {
+        "code": "1-bpm",
+        "name": "1º Batalhão de Polícia Militar",
+        "acronym": "1° BPM",
+        "unit_type": "OPERACIONAL",
+        "region": null,
+        "address": "Av. dos Portugueses, 7249-7323 - Sá Viana, São Luís – MA",
+        "location": {
+            "type": "Point",
+            "coordinates": [
+                -44.31167364760949,
+                -2.5571637959302693
+            ]
+        },
+        "commander": null,
+        "deputy_commander": null,
+        "phone": "(98) 3271-6350 / 6245",
+        "email": "1bpm@pm.ma.com.br",
+        "served_localities": "Anjo da Guarda; Vila Embratel; Sá Viana; Vila Nova; Fumacê",
+        "officers_count": 38,
+        "enlisted_count": 302,
+        "served_population": 210000,
+        "personnel_reference_date": null,
+        "population_reference_year": null,
+        "population_source": null,
+        "metrics_are_demo": true
+    },
+    {
+        "code": "2-bpm",
+        "name": "2º Batalhão de Polícia Militar",
+        "acronym": "2° BPM",
+        "unit_type": "OPERACIONAL",
+        "region": null,
+        "address": "Rua Arão Reis, s/n, Morro do Alecrim, Caxias – MA",
+        "location": {
+            "type": "Point",
+            "coordinates": [
+                -43.351511641486496,
+                -4.86797335266614
+            ]
+        },
+        "commander": null,
+        "deputy_commander": null,
+        "phone": "(99) 3521-3973",
+        "email": null,
+        "served_localities": "Afonso Cunha; Aldeias Altas; Caxias; Coelho Neto; Duque Bacelar; São João do Soter",
+        "officers_count": 32,
+        "enlisted_count": 258,
+        "served_population": 185000,
+        "personnel_reference_date": null,
+        "population_reference_year": null,
+        "population_source": null,
+        "metrics_are_demo": true
+    },
+    {
+        "code": "3-bpm",
+        "name": "3º Batalhão de Polícia Militar",
+        "acronym": "3° BPM",
+        "unit_type": "OPERACIONAL",
+        "region": null,
+        "address": "Rua Leôncio Pires Dourado, s/n, Bacuri – Imperatriz - MA",
+        "location": {
+            "type": "Point",
+            "coordinates": [
+                -47.47620341367448,
+                -5.5238829512639125
+            ]
+        },
+        "commander": null,
+        "deputy_commander": null,
+        "phone": "(99) 3525-3095",
+        "email": null,
+        "served_localities": "Davinópolis; Governador Edison Lobão; Imperatriz",
+        "officers_count": 42,
+        "enlisted_count": 338,
+        "served_population": 285000,
+        "personnel_reference_date": null,
+        "population_reference_year": null,
+        "population_source": null,
+        "metrics_are_demo": true
+    },
+    {
+        "code": "4-bpm",
+        "name": "4º Batalhão de Polícia Militar",
+        "acronym": "4° BPM",
+        "unit_type": "OPERACIONAL",
+        "region": null,
+        "address": "Av. Contorno, 176, Balsas – MA",
+        "location": {
+            "type": "Point",
+            "coordinates": [
+                -46.04086437763896,
+                -7.539507414188318
+            ]
+        },
+        "commander": null,
+        "deputy_commander": null,
+        "phone": "(99) 3541-2813",
+        "email": null,
+        "served_localities": "Alto Parnaíba; Balsas; Carolina; Feira Nova do Maranhão; Fortaleza dos Nogueiras; Loreto",
+        "officers_count": 35,
+        "enlisted_count": 275,
+        "served_population": 230000,
+        "personnel_reference_date": null,
+        "population_reference_year": null,
+        "population_source": null,
+        "metrics_are_demo": true
+    },
+    {
+        "code": "5-bpm",
+        "name": "5º Batalhão de Polícia Militar",
+        "acronym": "5° BPM",
+        "unit_type": "OPERACIONAL",
+        "region": null,
+        "address": "1413,, Av. Pedro Neiva de Santana, 1317, Barra do Corda – MA",
+        "location": {
+            "type": "Point",
+            "coordinates": [
+                -45.2352900092941,
+                -5.456788397325081
+            ]
+        },
+        "commander": null,
+        "deputy_commander": null,
+        "phone": "(99) 3643-1502",
+        "email": null,
+        "served_localities": "Barra do Corda; Fernando Falcão; Itaipava do Grajaú; Jenipapo dos Vieiras",
+        "officers_count": 28,
+        "enlisted_count": 222,
+        "served_population": 145000,
+        "personnel_reference_date": null,
+        "population_reference_year": null,
+        "population_source": null,
+        "metrics_are_demo": true
+    },
+    {
+        "code": "6-bpm",
+        "name": "6º Batalhão de Polícia Militar",
+        "acronym": "6° BPM",
+        "unit_type": "OPERACIONAL",
+        "region": null,
+        "address": "Avenida Este 103, S/N - Cidade Operária, São Luís – MA",
+        "location": {
+            "type": "Point",
+            "coordinates": [
+                -44.19686352329341,
+                -2.5707089752302954
+            ]
+        },
+        "commander": null,
+        "deputy_commander": null,
+        "phone": "(98) 3257-5672",
+        "email": null,
+        "served_localities": "Cidade Operária",
+        "officers_count": 40,
+        "enlisted_count": 320,
+        "served_population": 260000,
+        "personnel_reference_date": null,
+        "population_reference_year": null,
+        "population_source": null,
+        "metrics_are_demo": true
+    },
+    {
+        "code": "7-bpm",
+        "name": "7º Batalhão de Polícia Militar",
+        "acronym": "7° BPM",
+        "unit_type": "OPERACIONAL",
+        "region": null,
+        "address": "Av. Pres. Getúlio Vargas, 100 - Vila Militar, Pindaré-Mirim – MA",
+        "location": {
+            "type": "Point",
+            "coordinates": [
+                -45.350491302534984,
+                -3.618111639729621
+            ]
+        },
+        "commander": null,
+        "deputy_commander": null,
+        "phone": "(98) 3654-2099",
+        "email": null,
+        "served_localities": "Alto Alegre do Pindaré; Bela Vista do Maranhão; Bom Jardim; Igarapé do Meio; Monção; Pindaré-Mirim; Pio XII; Santa Inês; Santa Luzia; São João do Carú; Satubinha; Tufilândia",
+        "officers_count": 26,
+        "enlisted_count": 204,
+        "served_population": 120000,
+        "personnel_reference_date": null,
+        "population_reference_year": null,
+        "population_source": null,
+        "metrics_are_demo": true
+    },
+    {
+        "code": "8-bpm",
+        "name": "8º Batalhão de Polícia Militar",
+        "acronym": "8º BPM",
+        "unit_type": "OPERACIONAL",
+        "region": null,
+        "address": "Av. Coronel Colares Moreira - Jardim Renascença, São Luís – MA",
+        "location": {
+            "type": "Point",
+            "coordinates": [
+                -44.2790815901307,
+                -2.4986254247779427
+            ]
+        },
+        "commander": null,
+        "deputy_commander": null,
+        "phone": "(98) 3268-6067",
+        "email": null,
+        "served_localities": null,
+        "officers_count": 45,
+        "enlisted_count": 245,
+        "served_population": 275000,
+        "personnel_reference_date": null,
+        "population_reference_year": null,
+        "population_source": null,
+        "metrics_are_demo": true
+    },
+    {
+        "code": "9-bpm",
+        "name": "9º Batalhão de Polícia Militar",
+        "acronym": "9º BPM",
+        "unit_type": "OPERACIONAL",
+        "region": null,
+        "address": "Av. dos Franceses, S/N - Vila Palmeira, São Luís – MA",
+        "location": {
+            "type": "Point",
+            "coordinates": [
+                -44.255138832459586,
+                -2.54603585078777
+            ]
+        },
+        "commander": null,
+        "deputy_commander": null,
+        "phone": null,
+        "email": null,
+        "served_localities": null,
+        "officers_count": 36,
+        "enlisted_count": 284,
+        "served_population": 195000,
+        "personnel_reference_date": null,
+        "population_reference_year": null,
+        "population_source": null,
+        "metrics_are_demo": true
+    },
+    {
+        "code": "10-bpm",
+        "name": "10º Batalhão de Polícia Militar",
+        "acronym": "10º BPM",
+        "unit_type": "OPERACIONAL",
+        "region": null,
+        "address": "R. Tiradentes, 66, Pinheiro – MA",
+        "location": {
+            "type": "Point",
+            "coordinates": [
+                -45.09096868834652,
+                -2.5291310321530105
+            ]
+        },
+        "commander": null,
+        "deputy_commander": null,
+        "phone": "(98) 3381-2905",
+        "email": null,
+        "served_localities": "Alcântara; Bacurituba; Bequimão; Palmeirândia; Pedro do Rosário; Peri Mirim; Pinheiro; Presidente Sarney; Santa Helena; São Bento; Turiaçu; Turilândia",
+        "officers_count": 30,
+        "enlisted_count": 240,
+        "served_population": 160000,
+        "personnel_reference_date": null,
+        "population_reference_year": null,
+        "population_source": null,
+        "metrics_are_demo": true
+    },
+    {
+        "code": "11-bpm",
+        "name": "11º Batalhão de Polícia Militar",
+        "acronym": "11º BPM",
+        "unit_type": "OPERACIONAL",
+        "region": null,
+        "address": "R. José Constâncio, 666 - Parque Piaui, Timon - MA",
+        "location": {
+            "type": "Point",
+            "coordinates": [
+                -42.84042768059139,
+                -5.094337030331106
+            ]
+        },
+        "commander": null,
+        "deputy_commander": null,
+        "phone": "(99) 3212-3333",
+        "email": null,
+        "served_localities": "Matões; Parnarama; Timon",
+        "officers_count": 34,
+        "enlisted_count": 266,
+        "served_population": 205000,
+        "personnel_reference_date": null,
+        "population_reference_year": null,
+        "population_source": null,
+        "metrics_are_demo": true
+    },
+    {
+        "code": "12-bpm",
+        "name": "12º Batalhão de Polícia Militar",
+        "acronym": "12º BPM",
+        "unit_type": "OPERACIONAL",
+        "region": null,
+        "address": "BR-010 - Bela Vista, Estreito – MA",
+        "location": {
+            "type": "Point",
+            "coordinates": [
+                -47.441350061258696,
+                -6.580459611884416
+            ]
+        },
+        "commander": null,
+        "deputy_commander": null,
+        "phone": "(99) 99148-3773",
+        "email": null,
+        "served_localities": "Campestre do Maranhão; Estreito; Lajeado Novo; Montes Altos; Porto Franco; Ribamar Fiquene; São João do Paraíso; Sítio Novo",
+        "officers_count": 29,
+        "enlisted_count": 231,
+        "served_population": 175000,
+        "personnel_reference_date": null,
+        "population_reference_year": null,
+        "population_source": null,
+        "metrics_are_demo": true
+    },
+    {
+        "code": "13-bpm",
+        "name": "13º Batalhão de Polícia Militar",
+        "acronym": "13º BPM",
+        "unit_type": "OPERACIONAL",
+        "region": null,
+        "address": "Tv. Miritiuba, 500-534 - Vila Roseana, São José de Ribamar – MA",
+        "location": {
+            "type": "Point",
+            "coordinates": [
+                -44.07174072292697,
+                -2.544033238946397
+            ]
+        },
+        "commander": null,
+        "deputy_commander": null,
+        "phone": "(98) 2016-8471",
+        "email": null,
+        "served_localities": "São José de Ribamar; Raposa",
+        "officers_count": 27,
+        "enlisted_count": 213,
+        "served_population": 135000,
+        "personnel_reference_date": null,
+        "population_reference_year": null,
+        "population_source": null,
+        "metrics_are_demo": true
+    },
+    {
+        "code": "14-bpm",
+        "name": "14º Batalhão de Polícia Militar",
+        "acronym": "14º BPM",
+        "unit_type": "OPERACIONAL",
+        "region": null,
+        "address": "R. F, 4, Imperatriz – MA",
+        "location": {
+            "type": "Point",
+            "coordinates": [
+                -47.44750415972478,
+                -5.561112589651472
+            ]
+        },
+        "commander": null,
+        "deputy_commander": null,
+        "phone": null,
+        "email": null,
+        "served_localities": "Amarante do Maranhão; Buritirana; Imperatriz; João Lisboa; Senador La Rocque",
+        "officers_count": 33,
+        "enlisted_count": 267,
+        "served_population": 190000,
+        "personnel_reference_date": null,
+        "population_reference_year": null,
+        "population_source": null,
+        "metrics_are_demo": true
+    },
+    {
+        "code": "15-bpm",
+        "name": "15º Batalhão de Polícia Militar",
+        "acronym": "15º BPM",
+        "unit_type": "OPERACIONAL",
+        "region": null,
+        "address": "R. São José, 1400, Bacabal – MA",
+        "location": {
+            "type": "Point",
+            "coordinates": [
+                -44.78922387662339,
+                -4.209154497728685
+            ]
+        },
+        "commander": null,
+        "deputy_commander": null,
+        "phone": "(99) 3621-4638",
+        "email": null,
+        "served_localities": "Altamira do Maranhão; Alto Alegre do Maranhão; Bacabal; Bom Lugar; Brejo de Areia; Conceição do Lago-Açu; Lago Verde; Marajá do Sena; Olho d'Água das Cunhãs; Paulo Ramos; São Luís Gonzaga do Maranhão; Vitorino Freire",
+        "officers_count": 31,
+        "enlisted_count": 249,
+        "served_population": 165000,
+        "personnel_reference_date": null,
+        "population_reference_year": null,
+        "population_source": null,
+        "metrics_are_demo": true
+    },
+    {
+        "code": "16-bpm",
+        "name": "16º Batalhão de Polícia Militar",
+        "acronym": "16º BPM",
+        "unit_type": "OPERACIONAL",
+        "region": null,
+        "address": "Tv. Quinze de Novembro, 875-931, Chapadinha – MA",
+        "location": {
+            "type": "Point",
+            "coordinates": [
+                -43.35590570245101,
+                -3.620876784817218
+            ]
+        },
+        "commander": null,
+        "deputy_commander": null,
+        "phone": "(98) 3471-2631",
+        "email": null,
+        "served_localities": "Água Doce do Maranhão; Anapurus; Araioses; Belágua; Brejo; Buriti de Inácia Vaz; Chapadinha; Magalhães de Almeida; Mata Roma; Milagres do Maranhão; Paulino Neves; Santa Quitéria do Maranhão; Santana do Maranhão; São Benedito do Rio Preto; São Bernardo; Tutóia; Urbano Santos",
+        "officers_count": null,
+        "enlisted_count": null,
+        "served_population": null,
+        "personnel_reference_date": null,
+        "population_reference_year": null,
+        "population_source": null,
+        "metrics_are_demo": false
+    },
+    {
+        "code": "17-bpm",
+        "name": "17º Batalhão de Polícia Militar",
+        "acronym": "17º BPM",
+        "unit_type": "OPERACIONAL",
+        "region": null,
+        "address": "Av. Santos Dumont, 61-227 - Codó, MA",
+        "location": {
+            "type": "Point",
+            "coordinates": [
+                -43.879422306744864,
+                -4.407128118429974
+            ]
+        },
+        "commander": null,
+        "deputy_commander": null,
+        "phone": "(99) 99977-1540",
+        "email": null,
+        "served_localities": "Codó; Peritoró; Timbiras",
+        "officers_count": null,
+        "enlisted_count": null,
+        "served_population": null,
+        "personnel_reference_date": null,
+        "population_reference_year": null,
+        "population_source": null,
+        "metrics_are_demo": false
+    },
+    {
+        "code": "18-bpm",
+        "name": "18º Batalhão de Polícia Militar",
+        "acronym": "18º BPM",
+        "unit_type": "OPERACIONAL",
+        "region": null,
+        "address": "R. Júpiter, 220, Pres. Dutra – MA",
+        "location": {
+            "type": "Point",
+            "coordinates": [
+                -44.50177148303231,
+                -5.271987832394438
+            ]
+        },
+        "commander": null,
+        "deputy_commander": null,
+        "phone": "(99) 3663-3892",
+        "email": null,
+        "served_localities": "Capinzal do Norte; Dom Pedro; Gonçalves Dias; Governador Archer; Governador Eugênio Barros; Governador Luiz Rocha; Graça Aranha; Presidente Dutra; Santa Filomena do Maranhão; Santo Antônio dos Lopes; São Domingos do Maranhão; São José dos Basílios; Senador Alexandre Costa; Tuntum",
+        "officers_count": null,
+        "enlisted_count": null,
+        "served_population": null,
+        "personnel_reference_date": null,
+        "population_reference_year": null,
+        "population_source": null,
+        "metrics_are_demo": false
+    },
+    {
+        "code": "19-bpm",
+        "name": "19º Batalhão de Polícia Militar",
+        "acronym": "19º BPM",
+        "unit_type": "OPERACIONAL",
+        "region": null,
+        "address": "R. Messías Filho, 568, Pedreiras – MA",
+        "location": {
+            "type": "Point",
+            "coordinates": [
+                -44.604352063449525,
+                -4.530244981186459
+            ]
+        },
+        "commander": null,
+        "deputy_commander": null,
+        "phone": "(99) 3642-1850",
+        "email": null,
+        "served_localities": "Bernardo do Mearim; Esperantinópolis; Igarapé Grande; Joselândia; Lago da Pedra; Lago do Junco; Lago dos Rodrigues; Lagoa Grande do Maranhão; Lima Campos; Pedreiras; Poção de Pedras; São Raimundo do Doca Bezerra; São Roberto; Trizidela do Vale",
+        "officers_count": null,
+        "enlisted_count": null,
+        "served_population": null,
+        "personnel_reference_date": null,
+        "population_reference_year": null,
+        "population_source": null,
+        "metrics_are_demo": false
+    },
+    {
+        "code": "20-bpm",
+        "name": "20º Batalhão de Polícia Militar",
+        "acronym": "20º BPM",
+        "unit_type": "OPERACIONAL",
+        "region": null,
+        "address": "R. Seis, S/N - Cohatrac II, São Luís – MA",
+        "location": {
+            "type": "Point",
+            "coordinates": [
+                -44.20535258215073,
+                -2.5372439494705916
+            ]
+        },
+        "commander": null,
+        "deputy_commander": null,
+        "phone": "(98) 3838-7307",
+        "email": null,
+        "served_localities": "Cohab; Cohatrac; Parque Vitório; Alto do Turu; Parque Jair",
+        "officers_count": null,
+        "enlisted_count": null,
+        "served_population": null,
+        "personnel_reference_date": null,
+        "population_reference_year": null,
+        "population_source": null,
+        "metrics_are_demo": false
+    }
+]

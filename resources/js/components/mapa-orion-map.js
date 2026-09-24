@@ -1,4 +1,6 @@
 import L from 'leaflet';
+import { isOperationalArea } from './operational-area';
+import { isUnitPoint } from './unit-filters';
 import markerIconUrl from 'leaflet/dist/images/marker-icon.png';
 import markerIconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
 import markerShadowUrl from 'leaflet/dist/images/marker-shadow.png';
@@ -20,6 +22,9 @@ class MapaOrionMap extends HTMLElement {
     #zoom;
     #unitDialog;
     #returnFocus;
+    #units = [];
+    #layers = new Map();
+    #ready = false;
 
     connectedCallback() {
         if (this.#map) {
@@ -78,30 +83,57 @@ class MapaOrionMap extends HTMLElement {
                 this.#returnFocus = undefined;
             }, { signal: this.#events.signal });
 
-            const units = JSON.parse(this.getAttribute('units') ?? '[]');
+            this.#units = JSON.parse(this.getAttribute('units') ?? '[]');
 
-            for (const unit of units) {
+            for (const unit of this.#units) {
+                const label = `${unit.acronym} — ${unit.name}`;
+                const layers = {};
+                this.#layers.set(unit.code, layers);
+
+                if (isOperationalArea(unit.operational_area)) {
+                    layers.area = L.geoJSON(unit.operational_area, {
+                        style: { color: '#b45309', weight: 2, fillColor: '#f59e0b', fillOpacity: 0.16 },
+                        onEachFeature: (_feature, layer) => {
+                            layer.on('add', () => {
+                                const element = layer.getElement();
+                                element.setAttribute('tabindex', '0');
+                                element.setAttribute('role', 'button');
+                                element.setAttribute('aria-label', `Área operacional: ${label}`);
+                                element.style.cursor = 'pointer';
+                                element.addEventListener('focus', () => layer.setStyle({ weight: 4 }), {
+                                    signal: this.#events.signal,
+                                });
+                                element.addEventListener('blur', () => layer.setStyle({ weight: 2 }), {
+                                    signal: this.#events.signal,
+                                });
+                                element.addEventListener('keydown', (event) => {
+                                    if (event.key === 'Enter' || event.key === ' ') {
+                                        event.preventDefault();
+                                        event.stopPropagation();
+                                        this.#showUnitDetails(unit, element);
+                                    }
+                                }, { signal: this.#events.signal });
+                            });
+                            layer.on('click', () => this.#showUnitDetails(unit, layer.getElement()));
+                        },
+                    }).addTo(this.#map);
+                }
+
                 const location = unit.location;
 
-                if (location?.type !== 'Point' || !Array.isArray(location.coordinates)
-                    || location.coordinates.length !== 2) {
+                if (!isUnitPoint(location)) {
                     continue;
                 }
 
                 const [longitude, latitude] = location.coordinates;
-
-                if (!Number.isFinite(longitude) || !Number.isFinite(latitude)
-                    || longitude < -180 || longitude > 180 || latitude < -90 || latitude > 90) {
-                    continue;
-                }
-
-                const label = `${unit.acronym} — ${unit.name}`;
 
                 const marker = L.marker([latitude, longitude], {
                     icon: unitIcon,
                     title: label,
                     alt: label,
                 }).addTo(this.#map);
+
+                layers.point = marker;
 
                 marker.on('click', () => this.#showUnitDetails(unit, marker.getElement()));
                 marker.on('keydown', ({ originalEvent }) => {
@@ -122,11 +154,50 @@ class MapaOrionMap extends HTMLElement {
                 this.#map?.invalidateSize({ pan: false, debounceMoveend: true });
             });
             this.#resizeObserver.observe(canvas);
+            this.#ready = true;
+            this.dispatchEvent(new Event('map-ready'));
         } catch (error) {
             this.disconnectedCallback();
             status.textContent = 'Não foi possível iniciar o mapa. Recarregue a página para tentar novamente.';
             status.hidden = false;
             console.error('Não foi possível iniciar o mapa.', error);
+        }
+    }
+
+    get ready() {
+        return this.#ready;
+    }
+
+    getUnits() {
+        return this.#units;
+    }
+
+    setUnitVisibility(codes, { points = true, areas = true } = {}) {
+        if (!this.#ready) {
+            return;
+        }
+
+        const visible = new Set(codes);
+
+        for (const [code, layers] of this.#layers) {
+            for (const [kind, layer] of Object.entries(layers)) {
+                const shouldShow = visible.has(code) && (kind === 'point' ? points : areas);
+                const isShown = this.#map.hasLayer(layer);
+
+                if (shouldShow && !isShown) {
+                    layer.addTo(this.#map);
+                } else if (!shouldShow && isShown) {
+                    this.#map.removeLayer(layer);
+                }
+            }
+        }
+    }
+
+    showUnitDetails(code, trigger) {
+        const unit = this.#units.find((candidate) => candidate.code === code);
+
+        if (unit && this.#unitDialog && !this.#events?.signal.aborted) {
+            this.#showUnitDetails(unit, trigger);
         }
     }
 
@@ -186,12 +257,15 @@ class MapaOrionMap extends HTMLElement {
     }
 
     disconnectedCallback() {
+        this.#ready = false;
+        this.dispatchEvent(new Event('map-unavailable'));
         this.#resizeObserver?.disconnect();
         this.#events?.abort();
         this.#unitDialog?.close();
         this.#returnFocus = undefined;
         this.#map?.remove();
         this.#map = undefined;
+        this.#layers.clear();
 
         const recenterButton = this.querySelector('[data-map-recenter]');
 
