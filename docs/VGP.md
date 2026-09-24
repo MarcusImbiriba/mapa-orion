@@ -1,6 +1,6 @@
 # Mapa Orion — Visão Geral do Projeto
 
-Atualizado em **17/09/2026** a partir do código, das configurações, das migrações e dos testes do projeto em `/home/meci/Dev/WebApp/MapaOrion/mapa.orion`.
+Atualizado em **24/09/2026** a partir do código, das configurações, das migrações e dos testes do projeto em `/home/meci/Dev/WebApp/MapaOrion/mapa.orion`.
 
 A **implementação Laravel é a versão definitiva do projeto**, conforme decisão do responsável. Este documento descreve exclusivamente seu estado implementado. Substitui a consolidação de 10/09/2026 e pode ser utilizado de forma independente dos documentos anteriores. Funcionalidades ainda ausentes não são apresentadas como concluídas nem como compromissos de implementação.
 
@@ -37,7 +37,7 @@ O estado atual não inclui interface de cadastro/edição/exclusão de unidades,
 | Testes | Pest 5 e testes de aplicação Laravel |
 | Formatação PHP | Laravel Pint |
 
-Versões registradas nos arquivos de lock consultados: Laravel **13.31.0**, integração Laravel Datastar **1.0.3**, Leaflet **1.9.4**, Tailwind CSS **4.3.3**, Vite **8.3.0**, Pest **5.1.4** e Pint **1.32.1**. São as versões registradas no projeto nesta revisão, não uma afirmação sobre versões publicadas mais recentes. O `composer.json` exige PHP `^8.3`.
+Versões registradas nos arquivos de lock consultados: Laravel **13.31.0**, integração Laravel Datastar **1.0.3**, Leaflet **1.9.4**, Tailwind CSS **4.3.3**, Vite **8.3.0**, Pest **5.1.4** e Pint **1.32.1**. São as versões registradas no projeto nesta revisão, não uma afirmação sobre versões publicadas mais recentes. O `../composer.json` declara PHP `^8.3`, mas as dependências de desenvolvimento do lock exigem pelo menos PHP **8.4.1**. O ambiente documentado no README usa Node.js **22.13 ou posterior**, considerando também as ferramentas auxiliares.
 
 O navegador recebe dados do servidor na página autenticada. Não há dependência de cinco arquivos públicos de cadastro nem de seletores JavaScript para unir unidades e indicadores. O banco é a fonte persistente dos dados da unidade.
 
@@ -51,36 +51,46 @@ app/
 ├── Http/Controllers/
 │   ├── Auth/SessionController.php
 │   └── MapController.php
-└── Models/
-    ├── PoliceUnit.php
-    └── User.php
+├── Models/
+│   ├── PoliceUnit.php
+│   └── User.php
+└── Rules/
+    ├── GeoJsonPoint.php
+    └── OperationalArea.php
 config/
-└── map.php
+├── map.php
+└── mapa_orion.php
 database/
 ├── factories/PoliceUnitFactory.php
-└── migrations/
-    ├── ..._add_username_to_users_table.php
-    ├── ..._create_police_units_table.php
-    ├── ..._add_contact_and_coverage_fields_to_police_units_table.php
-    └── ..._add_current_metrics_to_police_units_table.php
+├── migrations/               # Usuários, unidades, indicadores e área operacional
+└── seeders/
+    ├── DatabaseSeeder.php
+    ├── InitialUserSeeder.php
+    ├── PoliceUnitSeeder.php
+    └── data/police_units.json
 resources/
 ├── css/app.css
 ├── js/
 │   ├── app.js
-│   └── components/mapa-orion-map.js
+│   └── components/
+│       ├── mapa-orion-map.js
+│       ├── operational-area.js
+│       ├── operations-sidebar.js
+│       └── unit-filters.js
 └── views/
     ├── auth/login.blade.php
     ├── auth/partials/login-errors.blade.php
     ├── dashboard.blade.php
     └── components/
         ├── layouts/app.blade.php
+        ├── operations-sidebar.blade.php
         └── unit-details.blade.php
 routes/web.php
-tests/Feature/
-├── Auth/SessionControllerTest.php
-├── Console/CreateUserTest.php
-├── Models/PoliceUnitTest.php
-└── MapTest.php
+tests/
+├── Feature/                  # Autenticação, comandos, seeders, modelos, mapa e painel
+├── Fixtures/operational-areas.json
+├── JavaScript/               # Geometrias, busca e contagens
+└── Unit/
 composer.json
 package.json
 phpunit.xml
@@ -102,7 +112,7 @@ Essa relação destaca os arquivos de implementação do domínio e não represe
 
 O login bem-sucedido regenera a sessão. O logout invalida a sessão e regenera o token CSRF. Para requisições Datastar, a navegação usa resposta SSE e os erros são atualizados no fragmento Blade correspondente. Requisições convencionais têm redirecionamentos/respostas HTTP próprios. Os formulários utilizam proteção CSRF.
 
-A criação administrativa de usuários está disponível por comando interativo:
+A instalação por `DatabaseSeeder` cria a conta inicial descrita na seção 9. A criação administrativa de contas adicionais está disponível por comando interativo:
 
 ```bash
 php artisan users:create nome.usuario --name="Nome completo"
@@ -177,15 +187,15 @@ Se qualquer um deles é null:
 
 No modal, valores desconhecidos aparecem como `—`, com descrição acessível “Não informado”. Zero aparece como zero. A população pode ser abreviada com `k` ou `M`, mantendo o valor completo em descrição acessível e no título do elemento. Se `metrics_are_demo` for `true`, é exibido o aviso “Indicadores com valores fictícios para demonstração.”
 
-Os campos de data, ano e fonte existem na persistência, mas **a consulta atual não os envia ao navegador e o modal não os apresenta**. Os indicadores representam o estado atual do registro; não há tabela de histórico de medições implementada.
+Os campos de data, ano e fonte existem na persistência, mas **a consulta não os envia ao navegador e o modal não os apresenta**. A exibição desses metadados foi cancelada pelo responsável em 24/09/2026 (item 7.7); os campos existentes são preservados, sem implementação de interface prevista nesta etapa. Os indicadores representam o estado atual do registro; não há tabela de histórico de medições implementada.
 
 ## 6. Fluxo de carregamento e responsabilidades
 
 1. O usuário acessa `/`. Sem autenticação, é direcionado ao login.
-2. `MapController` consulta `PoliceUnit`, seleciona todas as unidades, inclusive as que não possuem geometria e ordena por `code`.
+2. `MapController` consulta `PoliceUnit` e seleciona todas as unidades, inclusive as que não possuem geometria. A coleção é ordenada com `qcg-pmma` primeiro e os demais códigos em ordem natural: 1º BPM, 2º BPM, …, 20º BPM no catálogo atual. Os índices são reorganizados para serializar uma lista JSON.
 3. A consulta seleciona apenas os campos necessários para marcadores, áreas e detalhes e acrescenta `total_personnel` à serialização.
 4. `dashboard.blade.php` renderiza o custom element com a configuração do mapa e as unidades serializadas em seu atributo `units`, com escape pelo Blade.
-5. `resources/js/app.js` detecta o elemento e importa dinamicamente `mapa-orion-map.js`. A página de login não inicializa o mapa.
+5. `../resources/js/app.js` detecta o elemento e importa dinamicamente `mapa-orion-map.js`. A página de login não inicializa o mapa.
 6. O custom element cria a instância Leaflet, a camada de tiles, os marcadores e as áreas válidas.
 7. Ao ativar um marcador, uma área ou uma unidade da lista lateral, o componente preenche e abre o diálogo já existente na página. Não há consulta adicional ao servidor para abrir os detalhes.
 
@@ -193,13 +203,13 @@ Campos enviados por `MapController`: `code`, `name`, `acronym`, `unit_type`, `ad
 
 O mapa usa `data-ignore-morph` e seu canvas usa `data-ignore` para preservar a região gerenciada pelo Leaflet durante interações Datastar. Um `ResizeObserver` atualiza o tamanho do mapa. Na desconexão, o componente encerra eventos, observação e instância do mapa e fecha o diálogo.
 
-A busca do painel usa nome, sigla, código, localidades e endereço, sem diferenciar acentos/maiúsculas; todos os termos precisam ocorrer. A lista e o mapa são filtrados juntos. As camadas de sedes e áreas são independentes da lista: desligá-las preserva o acesso aos detalhes. As contagens refletem a busca, com unidades encontradas/total, unidades sem ponto válido e quantidade visível de sedes/áreas. Não há persistência dos filtros entre recarregamentos.
+A busca do painel usa nome, sigla, código, localidades e endereço, sem diferenciar acentos/maiúsculas; todos os termos precisam ocorrer. A lista e o mapa são filtrados juntos, preservando a ordem recebida do servidor. As camadas de sedes e áreas são independentes da lista: desligá-las preserva o acesso aos detalhes. As contagens refletem a busca, com unidades encontradas/total, unidades sem ponto válido e quantidade visível de sedes/áreas. Não há persistência dos filtros entre recarregamentos.
 
 Não há um serviço que carregue coleções públicas para combinar indicadores com unidades. A consulta, a transformação do modelo e a serialização do controller cumprem essas responsabilidades no fluxo atual.
 
 ## 7. Configuração efetiva do mapa
 
-`config/map.php` é a fonte de configuração utilizada pela view e pelo componente JavaScript:
+`../config/map.php` é a fonte de configuração utilizada pela view e pelo componente JavaScript:
 
 | Configuração | Valor padrão |
 | --- | --- |
@@ -216,19 +226,37 @@ O componente apresenta mensagens distintas para falha de inicialização e falha
 
 ## 8. Detalhes da unidade e acessibilidade
 
-O modal é um elemento HTML `dialog`, definido em `resources/views/components/unit-details.blade.php`. O título utiliza o nome, a identificação lateral utiliza a sigla e a linha complementar utiliza `unit_type`.
+O modal é um elemento HTML `dialog`, definido em `../resources/views/components/unit-details.blade.php`. O título utiliza o nome, a identificação lateral utiliza a sigla e a linha complementar utiliza `unit_type`.
 
 O componente exibe quatro indicadores e seções de comando/contatos e localidades. Campos descritivos ausentes são ocultados; a seção de comando é ocultada quando não há nenhuma linha preenchida, e localidades são ocultadas quando não há itens.
 
 Os textos são inseridos com `textContent`; localidades são construídas com elementos DOM. O modal não apresenta código técnico, latitude ou longitude como conteúdo de consulta.
 
-Os marcadores têm rótulos de identificação e podem abrir detalhes por clique, Enter ou espaço. Existem dois botões para fechar o diálogo; ao fechar, o foco retorna ao marcador que o abriu. A abertura dos detalhes não implementa deslocamento automático do mapa para a unidade.
+Marcadores, áreas e itens da lista têm rótulos de identificação e podem abrir detalhes por clique, Enter ou espaço. Existem dois botões para fechar o diálogo, que também pode ser fechado com Escape; ao fechar, o foco retorna ao elemento que o abriu. A abertura dos detalhes não implementa deslocamento automático do mapa para a unidade.
 
 ## 9. Cadastro e manutenção atuais
 
-A carga inicial de unidades foi adicionada em **22/09/2026**. `DatabaseSeeder` integra a carga de `PoliceUnitSeeder`, que declara diretamente em arrays PHP os 19 campos de domínio das 16 unidades presentes no SQLite do próprio `mapa.orion` nessa data. O arquivo `database/seeders/data/police_units.json` foi preservado como referência da extração, sem leitura ou decodificação pelo seeder. IDs internos e timestamps não integram o catálogo. Todos os indicadores dessa carga permanecem marcados como demonstrativos.
+`DatabaseSeeder` executa primeiro `InitialUserSeeder` e depois `PoliceUnitSeeder`. Após as migrações, `php artisan db:seed --no-interaction` carrega ambos; `php artisan migrate --seed --no-interaction` também os executa durante a preparação de uma nova instalação.
 
-Após as migrações, `php artisan db:seed --no-interaction` insere as unidades ausentes em uma transação, identificando-as por `code`. A repetição preserva registros existentes, inclusive edições posteriores e unidades adicionais; não sincroniza alterações do catálogo com registros já cadastrados. Nenhum usuário ou credencial é criado por essa carga.
+### Usuário inicial
+
+`../config/mapa_orion.php` centraliza nome **Comando**, username **comando** e senha padrão **MapaOrion-2026**. `COMANDO_INITIAL_PASSWORD` pode sobrescrever a senha quando definida; deve ter entre 12 e 1024 caracteres. Ausência da variável usa o padrão; valor vazio é rejeitado na criação. O `.env.example` atual deixa a variável comentada. Nome e username não dependem do `.env`.
+
+O seeder consulta o username configurado e encerra normalmente se ele já existir, sem alterar nome, senha ou timestamps. A senha só é usada na criação e é armazenada como hash pelo Model `User`. Reexecutar o seeder nunca restaura a senha inicial de uma conta existente.
+
+### Catálogo de unidades
+
+`PoliceUnitSeeder` lê exclusivamente `../database/seeders/data/police_units.json`, com **21 unidades: QCG e 1º ao 20º BPM**. O catálogo preserva os 16 registros extraídos do SQLite em 22/09/2026 e acrescenta cinco BPMs obtidos da aba **Dados reais** de `mapa-orion-unidades.ods`, incorporados em 23/09/2026. A aba **Referência antiga** não participa da carga. IDs internos e timestamps são gerados ao inserir.
+
+As 16 unidades anteriores têm indicadores demonstrativos (`metrics_are_demo=true`). As cinco novas têm indicadores e referências não informados (`null`), com `metrics_are_demo=false`. No catálogo atual, todas as 21 unidades têm ponto da sede; nenhuma fornece área operacional. Esses totais descrevem o arquivo versionado, não um inventário do banco local.
+
+Antes de inserir, o seeder valida a lista completa: campos aceitos, obrigatórios, códigos únicos, contatos, indicadores, referências e pontos. Arquivo ausente, JSON malformado ou dados inválidos interrompem a carga de unidades. A persistência usa uma transação e `firstOrCreate` por `code`: insere apenas unidades ausentes e preserva registros existentes, IDs, timestamps, edições posteriores e unidades adicionais. Uma falha de persistência reverte as unidades inseridas naquela execução. Essa transação não abrange a criação anterior do usuário inicial.
+
+Alterações no JSON afetam instalações novas e códigos ainda ausentes; não atualizam automaticamente unidades existentes. Para carregar somente unidades, sem executar o seeder de usuários:
+
+```bash
+php artisan db:seed --class=PoliceUnitSeeder --no-interaction
+```
 
 Não existe interface de manutenção de unidades nem importador geral. O cadastro é persistido pelo backend no modelo `PoliceUnit`; a manutenção posterior continua dependendo de um procedimento administrativo.
 
@@ -239,10 +267,10 @@ Para preparar um cadastro compatível com o estado atual:
 3. Se houver GeoJSON externo, extrair a geometria `Point` da sede para `location`, preservando coordenadas. Não armazenar a coleção completa nesse campo.
 4. Informar localidades em `served_localities`, separadas por `;`, sem confundir descrição textual com área cartográfica.
 5. Informar oficiais, praças e população quando conhecidos; usar `null` para desconhecidos e marcar explicitamente dados demonstrativos.
-6. Preencher data, ano e fonte quando disponíveis, considerando que ainda não aparecem no modal.
+6. Preservar data, ano e fonte quando disponíveis para armazenamento; sua exibição no modal foi cancelada no item 7.7.
 7. Persistir pelo fluxo administrativo definido para o banco e conferir o registro e a exibição após recarregar a página.
 
-Usar operações normais de salvamento do modelo permite executar sua validação de indicadores. Escritas SQL diretas ou atualizações em massa que não disparam os eventos do modelo não têm essa mesma garantia. Não há importador automático de planilhas implementado; preparar uma planilha não equivale a importar seus registros.
+Usar operações normais de salvamento do modelo permite executar sua validação de indicadores, ponto da sede e área operacional. Escritas SQL diretas ou atualizações em massa que não disparam os eventos do modelo não têm essa mesma garantia. Não há importador automático de planilhas implementado; preparar uma planilha não equivale a importar seus registros.
 
 ### Unidades sem área ou sem localização
 
@@ -253,7 +281,7 @@ Uma unidade, inclusive o QCG, pode existir somente com identificação. Não pre
 - Com `location` válida: aparece como marcador e pode abrir detalhes, mesmo sem dados opcionais.
 - Com `location` não nula, mas inválida para o componente: pode ser enviada pelo controller e será ignorada na criação de marcadores.
 
-O teste de modelo utiliza `qg-pmma` para demonstrar cadastro sem área e sem localização. Isso não comprova a existência desse registro no banco operacional consultado, cujo conteúdo não foi inventariado nesta revisão.
+Os testes incluem unidades sem geometria para verificar esse comportamento. O código do QCG no catálogo é `qcg-pmma`; o conteúdo do banco operacional não foi inventariado nesta revisão documental.
 
 ## 10. Validação e limites reais
 
@@ -291,7 +319,7 @@ Pontos inválidos são ignorados no navegador. Essa checagem é complementar à 
 
 - Áreas são associadas à unidade no próprio registro. Não há cálculo de interseções, editor ou importador de áreas.
 - Não há cálculo de população territorial única nem totais globais de indicadores. As contagens do painel são de unidades e geometrias, sem soma de efetivo ou população.
-- Referências temporais e fonte da população ainda não são expostas no modal.
+- Referências temporais e fonte da população não são expostas no modal por decisão de escopo (item 7.7 cancelado).
 - Não há histórico de indicadores, atualização automática, exportação ou importação pela interface.
 - Não há cadastro/edição de unidades pela interface. A lista geral abre os detalhes existentes e pode ser filtrada por busca; os controles de camadas alteram apenas a exibição no mapa.
 
@@ -311,31 +339,37 @@ npm run dev
 npm run build
 ```
 
-`composer run dev` aciona o ambiente de desenvolvimento configurado pelo projeto. `npm run dev` inicia o Vite; isoladamente, não substitui o servidor Laravel. `npm run build` gera os assets para uso pela aplicação Laravel.
+`composer run dev` chama `php artisan dev`, iniciando o servidor Laravel, o Vite e os processos auxiliares configurados. Os comandos do bloco são opções de desenvolvimento/compilação; não é necessário iniciar outro Vite junto de `composer run dev`. `npm run dev` inicia o Vite; isoladamente, não substitui o servidor Laravel. `npm run build` gera os assets para uso pela aplicação Laravel.
 
 Para verificar os comportamentos centrais com os testes existentes:
 
 ```bash
-php artisan test --compact tests/Feature/Models/PoliceUnitTest.php tests/Feature/MapTest.php tests/Feature/Auth/SessionControllerTest.php tests/Feature/Console/CreateUserTest.php
+php artisan test --compact tests/Feature/Models tests/Feature/Database tests/Feature/MapTest.php tests/Feature/OperationsSidebarTest.php tests/Feature/Auth/SessionControllerTest.php tests/Feature/Console/CreateUserTest.php
 ```
 
-Para executar a suíte completa:
+Para executar a suíte PHP completa, limpando antes o cache de configuração:
 
 ```bash
-php artisan test --compact
+composer test
 ```
 
-`phpunit.xml` configura ambiente de teste com SQLite em memória, sessão/cache em array e fila síncrona. Os testes de banco utilizam mecanismos de preparação próprios. Não executar comandos de teste substituindo essas configurações pelo banco operacional.
+Os testes JavaScript são independentes da suíte PHP e usam o runner nativo do Node.js:
 
-Pint é o formatador PHP presente no projeto. Após alterações PHP, seguir a orientação do `AGENTS.md`, incluindo `vendor/bin/pint --dirty --format agent` quando aplicável; esse comando pode modificar arquivos. O `package.json` atual contém apenas os scripts `dev` e `build`: não há scripts de ESLint, Prettier ou teste JavaScript definidos nele.
+```bash
+node --test tests/JavaScript/*.test.js
+```
+
+`../phpunit.xml` configura ambiente de teste com SQLite em memória, sessão/cache em array e fila síncrona. Os testes de banco utilizam mecanismos de preparação próprios. Não executar comandos de teste substituindo essas configurações pelo banco operacional.
+
+Pint é o formatador PHP presente no projeto. Após alterações PHP, seguir a orientação do `../AGENTS.md`, incluindo `vendor/bin/pint --dirty --format agent` quando aplicável; esse comando pode modificar arquivos. O `package.json` atual contém apenas os scripts `dev` e `build`: não há scripts de ESLint, Prettier ou teste JavaScript definidos nele.
 
 ### Cobertura existente e evidência desta revisão
 
-Os testes consultados cobrem autenticação, criação administrativa de usuários, acesso restrito ao mapa, configuração recebida do servidor, serialização dos dados, escape de atributos, estrutura do modal, identificação única, campos opcionais, localização e indicadores. Há casos específicos para zero versus desconhecido, cálculo do efetivo e rejeição de quantidades inválidas.
+Os testes consultados cobrem autenticação, criação administrativa de usuários, acesso restrito ao mapa, configuração recebida do servidor, serialização dos dados, escape de atributos, estrutura do modal, identificação única, campos opcionais, localização e indicadores. Há casos específicos para zero versus desconhecido, cálculo do efetivo e rejeição de quantidades inválidas. A cobertura inclui os dois seeders, senha padrão/override e preservação de usuário existente, validação e reversão da carga de unidades, pontos e áreas, painel com unidades sem geometria e ordenação QCG/BPMs. Os testes JavaScript verificam geometrias, busca e contagens; não automatizam a interação do Leaflet no navegador.
 
-**Nesta revisão documental foram lidos os arquivos de implementação, migrações, configurações, testes e locks. Não foram executados testes, build ou inspeção visual no navegador.** A existência de um teste não equivale a uma execução aprovada nesta data. Não são reaproveitados resultados de verificações da consolidação anterior.
+**Nesta revisão documental de 24/09/2026 foram conferidos implementação, migração de áreas, configurações, catálogo, testes e locks. Foram revisados o diff e as referências locais da documentação. Não foram executados testes, Pint, build ou inspeção visual no navegador, pois apenas README e VGP foram alterados.** A existência de um teste não equivale a uma execução aprovada nesta data. Não são reaproveitados resultados de verificações da consolidação anterior.
 
-Após mudanças funcionais, a conferência manual deve incluir login/logout, marcadores, abertura por teclado, fechamento e retorno de foco, campos ausentes, indicadores zerados/desconhecidos/demonstrativos, recentralização e mensagens de falha da base cartográfica.
+Após mudanças funcionais, a conferência manual deve incluir login/logout, busca e limpeza, ordem da lista, contagens, camadas independentes, unidades sem geometria, painel em tela pequena, marcadores e áreas, abertura por teclado, fechamento e retorno de foco, campos ausentes, indicadores zerados/desconhecidos/demonstrativos, recentralização e mensagens de falha da base cartográfica.
 
 ## 12. Decisões e restrições vigentes
 
@@ -347,7 +381,9 @@ Após mudanças funcionais, a conferência manual deve incluir login/logout, mar
 6. Armazenar GeoJSON Point em ordem longitude/latitude.
 7. Calcular o efetivo total a partir de oficiais e praças, preservando a distinção entre zero e desconhecido.
 8. Identificar indicadores demonstrativos e preservar metadados de referência disponíveis.
-9. Usar `config/map.php` como configuração efetivamente consumida pelo mapa.
+9. Usar `../config/map.php` como configuração efetivamente consumida pelo mapa.
 10. Não declarar como implementados importadores, interseções, exportadores ou telas cadastrais ausentes no código atual.
 11. Preservar autenticação, acessibilidade e separação entre dados persistidos e apresentação.
 12. A documentação registra o estado atual; novas funcionalidades e alterações de arquitetura continuam dependentes de definição de escopo.
+13. O item 7.7 foi cancelado: não implementar a exibição dos metadados de referência no modal; preservar os campos na persistência.
+14. O suporte do item 7.4 está implementado; cadastrar os polígonos reais posteriormente, quando os dados forem fornecidos.
