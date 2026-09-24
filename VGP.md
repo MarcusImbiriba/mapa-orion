@@ -13,13 +13,15 @@ Estão implementados:
 - Login por nome de usuário e senha, controle de sessão e logout.
 - Mapa centrado inicialmente em São Luís, com base OpenStreetMap por padrão.
 - Marcadores para unidades com localização geográfica válida.
+- Áreas operacionais opcionais em GeoJSON Polygon/MultiPolygon, com acesso aos detalhes da unidade.
+- Painel lateral com busca, listagem geral, contagens de unidades/geometrias e controle independente das camadas de sedes e áreas.
 - Modal de detalhes com identificação, tipo, comando, contatos, endereço, localidades atendidas e indicadores.
 - Indicadores de oficiais, praças, efetivo total calculado e população atendida.
 - Distinção entre informação ausente e quantidade zero; aviso de indicadores demonstrativos.
 - Zoom, recentralização e mensagens de carregamento ou falha do mapa.
 - Operação dos marcadores por mouse ou teclado e retorno de foco ao fechar os detalhes.
 
-O estado atual não inclui interface de cadastro/edição/exclusão de unidades, importador de planilhas ou GeoJSON, exportador de dados, painel lateral de pesquisa, totais globais, polígonos de áreas operacionais, interseções táticas ou alternador de bases cartográficas. A aplicação não atualiza os indicadores periodicamente: os dados são carregados ao renderizar a página.
+O estado atual não inclui interface de cadastro/edição/exclusão de unidades, importador de planilhas ou GeoJSON, exportador de dados, totais globais de efetivo/população, interseções táticas ou alternador de bases cartográficas. A aplicação não atualiza os indicadores periodicamente: os dados são carregados ao renderizar a página.
 
 ## 2. Arquitetura
 
@@ -123,6 +125,7 @@ A tabela `police_units` concentra identificação, localização, dados descriti
 | `region` | Região, opcional; armazenada, mas não enviada pelo controller atual ao mapa |
 | `address` | Endereço, opcional |
 | `location` | Geometria GeoJSON do ponto da sede, opcional |
+| `operational_area` | Geometria GeoJSON Polygon/MultiPolygon da área operacional, opcional |
 | `commander` | Comandante, opcional |
 | `deputy_commander` | Subcomandante, opcional |
 | `phone` | Contato telefônico em texto, opcional |
@@ -179,16 +182,18 @@ Os campos de data, ano e fonte existem na persistência, mas **a consulta atual 
 ## 6. Fluxo de carregamento e responsabilidades
 
 1. O usuário acessa `/`. Sem autenticação, é direcionado ao login.
-2. `MapController` consulta `PoliceUnit`, filtra `location` não nulo e ordena por `code`.
-3. A consulta seleciona apenas os campos necessários para marcadores e detalhes e acrescenta `total_personnel` à serialização.
+2. `MapController` consulta `PoliceUnit`, seleciona todas as unidades, inclusive as que não possuem geometria e ordena por `code`.
+3. A consulta seleciona apenas os campos necessários para marcadores, áreas e detalhes e acrescenta `total_personnel` à serialização.
 4. `dashboard.blade.php` renderiza o custom element com a configuração do mapa e as unidades serializadas em seu atributo `units`, com escape pelo Blade.
 5. `resources/js/app.js` detecta o elemento e importa dinamicamente `mapa-orion-map.js`. A página de login não inicializa o mapa.
-6. O custom element cria a instância Leaflet, a camada de tiles e os marcadores válidos.
-7. Ao ativar um marcador, o componente preenche e abre o diálogo já existente na página. Não há consulta adicional ao servidor para abrir os detalhes.
+6. O custom element cria a instância Leaflet, a camada de tiles, os marcadores e as áreas válidas.
+7. Ao ativar um marcador, uma área ou uma unidade da lista lateral, o componente preenche e abre o diálogo já existente na página. Não há consulta adicional ao servidor para abrir os detalhes.
 
-Campos enviados por `MapController`: `code`, `name`, `acronym`, `unit_type`, `address`, `commander`, `deputy_commander`, `phone`, `email`, `served_localities`, `location`, `officers_count`, `enlisted_count`, `served_population`, `metrics_are_demo` e `total_personnel`.
+Campos enviados por `MapController`: `code`, `name`, `acronym`, `unit_type`, `address`, `commander`, `deputy_commander`, `phone`, `email`, `served_localities`, `location`, `operational_area`, `officers_count`, `enlisted_count`, `served_population`, `metrics_are_demo` e `total_personnel`.
 
 O mapa usa `data-ignore-morph` e seu canvas usa `data-ignore` para preservar a região gerenciada pelo Leaflet durante interações Datastar. Um `ResizeObserver` atualiza o tamanho do mapa. Na desconexão, o componente encerra eventos, observação e instância do mapa e fecha o diálogo.
+
+A busca do painel usa nome, sigla, código, localidades e endereço, sem diferenciar acentos/maiúsculas; todos os termos precisam ocorrer. A lista e o mapa são filtrados juntos. As camadas de sedes e áreas são independentes da lista: desligá-las preserva o acesso aos detalhes. As contagens refletem a busca, com unidades encontradas/total, unidades sem ponto válido e quantidade visível de sedes/áreas. Não há persistência dos filtros entre recarregamentos.
 
 Não há um serviço que carregue coleções públicas para combinar indicadores com unidades. A consulta, a transformação do modelo e a serialização do controller cumprem essas responsabilidades no fluxo atual.
 
@@ -241,15 +246,20 @@ Usar operações normais de salvamento do modelo permite executar sua validaçã
 
 ### Unidades sem área ou sem localização
 
-Uma unidade, inclusive o QCG, pode existir somente com identificação. Não precisa de área operacional para existir ou para ter um ponto. Áreas não fazem parte do modelo implementado.
+Uma unidade, inclusive o QCG, pode existir somente com identificação. Não precisa de área operacional para existir ou para ter um ponto. A área opcional fica em `operational_area`, separada de `location`, como geometria GeoJSON Polygon ou MultiPolygon. O catálogo inicial não fornece polígonos; as áreas reais serão cadastradas posteriormente.
 
-- Sem `location`: a unidade permanece no banco, mas não é enviada ao mapa pela consulta atual.
+- Sem `location`: a unidade aparece na lista geral do painel com indicação **Sem ponto de sede**, com acesso aos detalhes mesmo sem área. Nenhum ponto é criado artificialmente.
+- Com área válida, mesmo sem ponto: aparece como polígono e pode abrir os detalhes por clique ou teclado.
 - Com `location` válida: aparece como marcador e pode abrir detalhes, mesmo sem dados opcionais.
 - Com `location` não nula, mas inválida para o componente: pode ser enviada pelo controller e será ignorada na criação de marcadores.
 
 O teste de modelo utiliza `qg-pmma` para demonstrar cadastro sem área e sem localização. Isso não comprova a existência desse registro no banco operacional consultado, cujo conteúdo não foi inventariado nesta revisão.
 
 ## 10. Validação e limites reais
+
+### Áreas operacionais
+
+O campo `operational_area` aceita `null`, Polygon ou MultiPolygon com listas não vazias, anéis fechados de pelo menos quatro posições e coordenadas bidimensionais finitas nos limites de longitude/latitude. Há validação no salvamento pelo Model e verificação defensiva no navegador. Não há análise topológica de auto-interseções ou certificação territorial. SQL direto e atualizações em massa podem contornar a validação do Model.
 
 ### Indicadores no servidor
 
@@ -260,7 +270,11 @@ O evento `saving` de `PoliceUnit` valida:
 - `population_source`: opcional, string com até 255 caracteres.
 - `metrics_are_demo`: booleano.
 
-Os casts convertem localização, quantidades, data, ano e marca de demonstração aos tipos definidos pelo modelo. O código não deve ser interpretado como validação integral de todos os campos cadastrais: por exemplo, a lista de regras do evento não inclui validação de geometria nem regra específica para a data de referência do efetivo.
+Os casts convertem localização, quantidades, data, ano e marca de demonstração aos tipos definidos pelo modelo. O código não deve ser interpretado como validação integral de todos os campos cadastrais: por exemplo, a lista de regras do evento não inclui regra específica para a data de referência do efetivo.
+
+### Ponto da sede no servidor
+
+O evento `saving` de `PoliceUnit` também valida `location`: aceita `null` ou geometria GeoJSON Point com exatamente duas coordenadas numéricas finitas em ordem longitude/latitude, nos limites de −180 a 180 e −90 a 90. Strings numéricas, Feature/FeatureCollection, outras geometrias e altitude não são aceitos. Zero é válido. Uma falha impede toda a criação ou atualização pelo Model, sem alterar os dados já persistidos. Valores JSON brutos malformados não são tratados como ausência de localização. SQL direto, atualizações em massa e operações sem eventos podem contornar essa proteção.
 
 ### Geometria no navegador
 
@@ -271,15 +285,15 @@ Antes de criar o marcador, o componente exige:
 - Longitude e latitude numéricas e finitas.
 - Longitude entre -180 e 180 e latitude entre -90 e 90.
 
-Pontos inválidos são ignorados. Essa checagem protege a renderização, mas não impede por si só o armazenamento de uma geometria inválida no banco. Não há validação ou renderização de Polygon/MultiPolygon nesta implementação.
+Pontos inválidos são ignorados no navegador. Essa checagem é complementar à validação do Model. Polygon/MultiPolygon também são validados e renderizados pelo fluxo de áreas operacionais, separadamente do ponto da sede. Nenhuma dessas verificações certifica que as coordenadas correspondem à sede real ou aos limites oficiais.
 
 ### Limitações funcionais
 
-- Não há áreas, interseções ou vínculos entre unidades e polígonos implementados.
-- Não há cálculo de população territorial única nem estatísticas globais exibidas.
+- Áreas são associadas à unidade no próprio registro. Não há cálculo de interseções, editor ou importador de áreas.
+- Não há cálculo de população territorial única nem totais globais de indicadores. As contagens do painel são de unidades e geometrias, sem soma de efetivo ou população.
 - Referências temporais e fonte da população ainda não são expostas no modal.
 - Não há histórico de indicadores, atualização automática, exportação ou importação pela interface.
-- Não há cadastro/edição de unidades pela interface nem seletor de unidade sem localização.
+- Não há cadastro/edição de unidades pela interface. A lista geral abre os detalhes existentes e pode ser filtrada por busca; os controles de camadas alteram apenas a exibição no mapa.
 
 ## 11. Comandos e verificação
 
@@ -329,11 +343,11 @@ Após mudanças funcionais, a conferência manual deve incluir login/logout, mar
 2. Manter o banco e o modelo `PoliceUnit` como base dos dados cadastrais e indicadores atuais.
 3. Preservar `code` como identificação única e estável; `id` é a chave interna do banco.
 4. Usar nomes técnicos em inglês no modelo e português na interface.
-5. Admitir unidades sem localização e sem área; exibir no mapa somente pontos válidos.
+5. Admitir unidades sem localização e sem área; exibir no mapa somente pontos e áreas válidos.
 6. Armazenar GeoJSON Point em ordem longitude/latitude.
 7. Calcular o efetivo total a partir de oficiais e praças, preservando a distinção entre zero e desconhecido.
 8. Identificar indicadores demonstrativos e preservar metadados de referência disponíveis.
 9. Usar `config/map.php` como configuração efetivamente consumida pelo mapa.
-10. Não declarar como implementados importadores, áreas, interseções, exportadores ou telas cadastrais ausentes no código atual.
+10. Não declarar como implementados importadores, interseções, exportadores ou telas cadastrais ausentes no código atual.
 11. Preservar autenticação, acessibilidade e separação entre dados persistidos e apresentação.
 12. A documentação registra o estado atual; novas funcionalidades e alterações de arquitetura continuam dependentes de definição de escopo.

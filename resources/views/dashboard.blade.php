@@ -38,7 +38,54 @@
                     </p>
                 </noscript>
             </mapa-orion-map>
-            <x-operations-sidebar />
+            <x-operations-sidebar map-target="orion-map">
+                <x-slot:search>
+                    <label for="unit-search" class="block text-xs font-medium text-slate-300">Buscar unidades</label>
+                    <div class="mt-1 flex gap-2">
+                        <input id="unit-search" data-unit-search type="search" disabled autocomplete="off"
+                               aria-controls="unit-list" placeholder="Nome, sigla ou localidade"
+                               class="min-w-0 flex-1 rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus-visible:outline-2 focus-visible:outline-amber-400 disabled:opacity-60">
+                        <button type="button" data-clear-search disabled
+                                class="rounded-lg border border-slate-700 px-2 text-xs text-slate-300 hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-amber-400 disabled:opacity-50">Limpar</button>
+                    </div>
+                </x-slot:search>
+                <x-slot:layers>
+                    <fieldset class="flex flex-col gap-2">
+                        <legend class="pb-2 text-xs font-semibold text-slate-400">Camadas no mapa</legend>
+                        <label class="flex cursor-pointer items-center gap-2 text-sm text-slate-200">
+                            <input type="checkbox" data-layer-points checked disabled class="size-4 accent-amber-400">
+                            Sedes <span data-point-count class="ml-auto text-xs text-slate-400">—</span>
+                        </label>
+                        <label class="flex cursor-pointer items-center gap-2 text-sm text-slate-200">
+                            <input type="checkbox" data-layer-areas checked disabled class="size-4 accent-amber-400">
+                            Áreas operacionais <span data-area-count class="ml-auto text-xs text-slate-400">—</span>
+                        </label>
+                    </fieldset>
+                </x-slot:layers>
+                <x-slot:units>
+                    <section aria-labelledby="unit-list-title" class="flex flex-col gap-3">
+                        <div class="flex flex-col gap-1">
+                            <h3 id="unit-list-title" class="text-sm font-semibold text-amber-200">Unidades</h3>
+                            <p data-unit-count role="status" aria-live="polite" class="text-xs text-slate-400">{{ $units->count() }} de {{ $units->count() }} unidades</p>
+                            <p data-unlocated-count class="text-xs text-slate-400">{{ $units->whereNull('location')->count() }} sem ponto de sede</p>
+                        </div>
+                        <ul id="unit-list" class="flex flex-col gap-2">
+                            @foreach ($units as $unit)
+                                <li data-unit-row-code="{{ $unit->code }}">
+                                    <button type="button" data-unit-details-code="{{ $unit->code }}" disabled aria-haspopup="dialog"
+                                            class="flex w-full flex-col gap-1 rounded-lg border border-slate-700 bg-slate-800 p-3 text-left transition-colors hover:border-amber-400 hover:bg-slate-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400 disabled:opacity-60">
+                                        <span class="text-sm font-semibold text-slate-100 wrap-anywhere">{{ $unit->acronym }}</span>
+                                        <span class="text-xs text-slate-300 wrap-anywhere">{{ $unit->name }}</span>
+                                        <span data-unit-unlocated @if ($unit->location !== null) hidden @endif class="text-xs text-amber-300">Sem ponto de sede</span>
+                                    </button>
+                                </li>
+                            @endforeach
+                        </ul>
+                        <p data-unit-empty @if ($units->isNotEmpty()) hidden @endif class="text-sm text-slate-400">Nenhuma unidade cadastrada.</p>
+                        <noscript><p class="text-xs text-amber-200">Ative o JavaScript para buscar, controlar camadas e abrir os detalhes das unidades.</p></noscript>
+                    </section>
+                </x-slot:units>
+            </x-operations-sidebar>
         </main>
     </div>
 </x-layouts.app>

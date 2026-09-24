@@ -52,7 +52,7 @@ test('map configuration cannot break out of its HTML attribute', function () {
         ->assertDontSee('<script>alert(1)</script>', false);
 });
 
-test('the map receives only located units and the fields needed for marker details', function () {
+test('the map receives all units and the fields needed for their details', function () {
     $unit = PoliceUnit::factory()->withLocation()->create([
         'unit_type' => 'Operacional',
         'address' => 'Rua de teste, 10',
@@ -66,7 +66,7 @@ test('the map receives only located units and the fields needed for marker detai
         'served_population' => 275000,
         'metrics_are_demo' => true,
     ]);
-    PoliceUnit::factory()->create();
+    $unlocated = PoliceUnit::factory()->create(['code' => 'z-unlocated']);
 
     $response = $this->actingAs(User::factory()->create())->get('/');
 
@@ -75,12 +75,10 @@ test('the map receives only located units and the fields needed for marker detai
     @$document->loadHTML($response->getContent());
     $map = $document->getElementsByTagName('mapa-orion-map')->item(0);
     expect(json_decode($map->getAttribute('units'), true, flags: JSON_THROW_ON_ERROR))
-        ->toBe([$unit->fresh()->only(['code', 'name', 'acronym', 'unit_type', 'address', 'commander', 'deputy_commander', 'phone', 'email', 'served_localities', 'location', 'officers_count', 'enlisted_count', 'served_population', 'metrics_are_demo', 'total_personnel'])]);
+        ->toBe(collect([$unit->fresh(), $unlocated->fresh()])->map(fn (PoliceUnit $item) => $item->only(['code', 'name', 'acronym', 'unit_type', 'address', 'commander', 'deputy_commander', 'phone', 'email', 'served_localities', 'location', 'operational_area', 'officers_count', 'enlisted_count', 'served_population', 'metrics_are_demo', 'total_personnel']))->all());
 });
 
-test('the map renders with an empty marker list when no units have a location', function () {
-    PoliceUnit::factory()->create();
-
+test('the map renders with an empty unit list when there are no units', function () {
     $this->actingAs(User::factory()->create())->get('/')
         ->assertOk()
         ->assertSee('units="[]"', false);
@@ -157,4 +155,33 @@ test('unit details use the reference dialog with accessible closing controls', f
     expect($xpath->query('.//*[@data-unit-metric]//*[local-name()="circle"]', $dialog)->length)->toBe(3);
     expect($xpath->query('.//*[@data-unit-command and @hidden]', $dialog)->length)->toBe(1);
     expect($xpath->query('.//*[@data-unit-localities and @hidden]', $dialog)->length)->toBe(1);
+});
+
+test('the map receives units with a point an area both or neither', function () {
+    $point = PoliceUnit::factory()->withLocation()->create(['code' => 'a-point']);
+    $area = PoliceUnit::factory()->withOperationalArea()->create(['code' => 'b-area']);
+    $both = PoliceUnit::factory()->withLocation()->withOperationalArea()->create(['code' => 'c-both']);
+    PoliceUnit::factory()->create(['code' => 'd-neither']);
+
+    $response = $this->actingAs(User::factory()->create())->get('/');
+
+    $response->assertOk();
+    $document = new DOMDocument;
+    @$document->loadHTML($response->getContent());
+    $map = $document->getElementsByTagName('mapa-orion-map')->item(0);
+    $units = json_decode($map->getAttribute('units'), true, flags: JSON_THROW_ON_ERROR);
+    expect(array_column($units, 'code'))->toBe(['a-point', 'b-area', 'c-both', 'd-neither']);
+    expect($units[3]['location'])->toBeNull();
+    expect($units[3]['operational_area'])->toBeNull();
+    expect($units[0]['operational_area'])->toBeNull();
+    expect($units[1]['location'])->toBeNull();
+    expect($units[1]['operational_area'])->toBe($area->operational_area);
+    expect($units[2]['location'])->toBe($both->location);
+    expect($units[2]['operational_area'])->toBe($both->operational_area);
+});
+
+test('guests cannot access operational areas', function () {
+    PoliceUnit::factory()->withOperationalArea()->create(['code' => 'restricted-area']);
+
+    $this->get('/')->assertRedirect('/login')->assertDontSee('restricted-area');
 });

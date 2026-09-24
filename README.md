@@ -32,7 +32,7 @@ O Mapa Orion permite:
 
 Os indicadores distinguem valores desconhecidos (`—`), quantidades zeradas (`0`) e dados demonstrativos, identificados com um aviso. O efetivo total é calculado somente quando as quantidades de oficiais e praças estão disponíveis.
 
-**Escopo atual:** a aplicação oferece consulta aos dados. Ainda não há tela de cadastro ou edição de unidades, importação de planilhas, pesquisa, exportação ou exibição de áreas operacionais. A criação de usuários é feita pelo terminal.
+**Escopo atual:** a aplicação oferece consulta aos dados. Ainda não há tela de cadastro ou edição de unidades, importação de planilhas ou exportação. O mapa exibe áreas operacionais quando cadastradas. A criação de usuários é feita pelo terminal.
 
 ## Tecnologias
 
@@ -275,7 +275,20 @@ O arquivo [`config/map.php`](config/map.php) define o centro inicial, o zoom, o 
 
 O provedor padrão é o OpenStreetMap. As variáveis opcionais `MAP_TILE_URL` e `MAP_ATTRIBUTION`, no `.env`, permitem configurar outro provedor e sua atribuição. Após alterar configurações, execute `php artisan config:clear` e recarregue a página.
 
-A localização de uma unidade utiliza uma geometria GeoJSON `Point`, com coordenadas na ordem **longitude, latitude**. Unidades sem localização permanecem no banco e não aparecem como marcadores; pontos inválidos são ignorados pelo componente do mapa.
+A localização de uma unidade utiliza uma geometria GeoJSON `Point`, com coordenadas na ordem **longitude, latitude**. O salvamento pelo Model aceita `null` ou um Point com exatamente duas coordenadas numéricas finitas: longitude entre −180 e 180 e latitude entre −90 e 90. Strings numéricas, outros tipos de geometria e posições com altitude são rejeitados. Uma localização inválida impede a criação ou a alteração da unidade, preservando o registro anterior; `[0, 0]` é uma localização válida. Unidades sem localização permanecem no banco e não aparecem como marcadores; a verificação defensiva do navegador continua ignorando pontos inválidos. Escritas SQL diretas, atualizações em massa e operações que suprimem eventos do Model podem contornar essa validação.
+
+A área operacional é opcional e fica em `police_units.operational_area`, separada do ponto da sede e associada à unidade pelo próprio registro. Aceita uma geometria GeoJSON `Polygon` ou `MultiPolygon` (incluindo anéis internos), com coordenadas bidimensionais `[longitude, latitude]`. Não recebe `Feature` nem `FeatureCollection` diretamente. O salvamento pelo Model valida listas não vazias, anéis fechados com pelo menos quatro posições e limites numéricos das coordenadas. A validação é estrutural: não certifica limites oficiais, auto-interseções ou a posição dos recortes internos.
+
+Unidades com apenas área também são enviadas ao mapa. Pontos e áreas são renderizados independentemente, e ambos abrem os detalhes da unidade por clique ou teclado (Enter/Espaço), com retorno de foco ao fechar. Uma geometria de área inválida é ignorada no navegador sem impedir outros marcadores ou áreas. O painel lateral lista todas as unidades, incluindo as que não possuem geometria, e identifica as que estão sem ponto de sede. Cada item abre o mesmo diálogo de detalhes por clique ou teclado, sem criar coordenadas ou marcadores artificiais.
+
+A busca filtra simultaneamente a lista e as geometrias do mapa por nome, sigla, código, localidades atendidas ou endereço. Ignora acentos e maiúsculas e exige todos os termos digitados, mesmo quando aparecem em campos diferentes. O botão **Limpar** restaura a lista. As mensagens distinguem banco vazio de busca sem resultados.
+
+Os controles **Sedes** e **Áreas operacionais** mostram ou ocultam cada camada independentemente, preservando a consulta de todas as unidades na lista. As contagens indicam unidades encontradas/total, unidades encontradas sem ponto válido e geometrias atualmente exibidas em cada camada. Uma unidade com ponto e área conta uma vez na lista e uma vez em cada camada; uma área MultiPolygon conta como uma área da unidade. Desativar camadas não altera a busca nem os dados persistidos. As opções são locais à página e voltam ao estado inicial ao recarregar.
+
+Em instalações existentes, execute `php artisan migrate` para adicionar o campo opcional; a migração preserva os registros e inicia as áreas como `null`. O catálogo inicial não fornece polígonos e o seeder preserva áreas cadastradas posteriormente. O cadastro das áreas reais fica para uma etapa posterior; não há editor ou importador de áreas nesta implementação. Reverter essa migração remove o campo e quaisquer áreas que tenham sido cadastradas nele.
+
+Os testes JavaScript de geometria podem ser executados com `node --test tests/JavaScript/*.test.js`.
+
 
 ## Estrutura do projeto
 
