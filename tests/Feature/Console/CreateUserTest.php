@@ -67,8 +67,17 @@ test('short or unconfirmed passwords do not create an account', function (string
     'empty password' => ['', '', 'Informe uma senha.'],
 ]);
 
-test('the default seeder does not create an account with a known password', function () {
+test('the default seeder creates the configured initial account', function () {
+    config(['mapa_orion.initial_user' => [
+        'name' => 'Comando',
+        'username' => 'comando',
+        'password' => 'SenhaInicial@Teste123',
+    ]]);
+
     $this->seed();
 
-    $this->assertDatabaseCount('users', 0);
+    $user = User::where('username', 'comando')->sole();
+    expect($user->name)->toBe('Comando');
+    expect(Hash::check('SenhaInicial@Teste123', $user->password))->toBeTrue();
+    $this->assertDatabaseCount('users', 1);
 });

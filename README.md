@@ -129,12 +129,24 @@ php artisan key:generate --no-interaction
 
 ```bash
 php -r "file_exists('database/database.sqlite') || touch('database/database.sqlite');"
-php artisan migrate --no-interaction
+php artisan migrate --seed --no-interaction
 ```
 
-As migrações criam a estrutura das unidades, dos usuários e dos serviços que utilizam o banco, como sessões e cache.
+As migrações criam a estrutura das unidades, dos usuários e dos serviços que utilizam o banco, como sessões e cache. A opção `--seed` também cria o usuário inicial e carrega o catálogo de unidades descritos abaixo.
 
-### 5. Criar o primeiro usuário
+### 5. Usuário inicial e contas adicionais
+
+O `InitialUserSeeder` cria o usuário inicial com os valores definidos em `config/mapa_orion.php`:
+
+- **Usuário:** `comando`.
+- **Nome:** `Comando`.
+- **Senha inicial padrão:** `MapaOrion-2026`.
+
+A variável `COMANDO_INITIAL_PASSWORD` pode sobrescrever a senha inicial padrão. Quando ela não está definida, o sistema utiliza `MapaOrion-2026`. Para usar o padrão ao copiar `.env.example`, remova ou comente a linha `COMANDO_INITIAL_PASSWORD=` no `.env`: uma variável definida como vazia não ativa o padrão e é rejeitada pelo seeder. Uma senha personalizada deve ter entre **12 e 1024 caracteres**.
+
+Essa configuração só é utilizada durante a criação inicial. Se o usuário `comando` já existir (ou outro `username` configurado), executar novamente o seeder não altera seu nome ou sua senha, não recria a conta e não restaura a senha inicial, mesmo após uma troca de senha.
+
+Para criar contas adicionais, utilize:
 
 ```bash
 php artisan users:create nome.usuario --name="Nome completo"
@@ -142,7 +154,7 @@ php artisan users:create nome.usuario --name="Nome completo"
 
 O comando solicita a senha e sua confirmação sem exibi-las. Utilize uma senha com pelo menos **12 caracteres**. O nome de usuário aceita letras, números, ponto, hífen e sublinhado, e é convertido para minúsculas.
 
-Não há conta ou senha padrão. O login utiliza o **nome de usuário**, não o e-mail.
+O login utiliza o **nome de usuário**, não o e-mail.
 
 ### 6. Compilar os arquivos da interface
 
@@ -154,9 +166,27 @@ O comando gera o CSS, o JavaScript e os demais assets em `public/build`. A confi
 
 ### Dados da instalação
 
-Uma instalação nova começa **sem unidades cadastradas**. O `DatabaseSeeder` não cria usuários nem unidades; executar `php artisan db:seed` não preenche o mapa.
+A instalação com `--seed` cria **21 unidades**: o QCG e o 1º ao 20º BPM. O `PoliceUnitSeeder` lê exclusivamente o catálogo versionado `database/seeders/data/police_units.json`. Os 16 registros extraídos do SQLite do próprio `mapa.orion` em **22/09/2026** foram preservados integralmente. Os cinco novos BPMs vieram da aba **Dados reais** da planilha `mapa-orion-unidades.ods`, incorporada em **23/09/2026**. A aba **Referência antiga**, marcada como fictícia, não participa da carga. IDs internos e timestamps são gerados pela instalação.
 
-Após o primeiro login, a base cartográfica aparecerá sem marcadores até que o banco receba unidades com localização válida. A manutenção desses registros ainda depende de um procedimento administrativo no backend; o projeto não fornece um importador ou tela de cadastro.
+**Os indicadores das 16 unidades anteriores são demonstrativos** e mantêm seus valores e `metrics_are_demo=true`. Os cinco novos BPMs não possuem indicadores informados: efetivo, população e referências ficam como `null`, com `metrics_are_demo=false`. Ausência de informação não equivale a zero. Na preparação do catálogo, campos vazios e comandantes indicados como “Indefinido” foram convertidos em `null`, localidades foram separadas por ponto e vírgula e coordenadas foram armazenadas como números na ordem GeoJSON `[longitude, latitude]`. Nomes e endereços foram preservados conforme a fonte.
+
+O `DatabaseSeeder` chama `InitialUserSeeder` e depois `PoliceUnitSeeder`. Para carregar o catálogo após executar as migrações, use:
+
+```bash
+php artisan db:seed --no-interaction
+```
+
+O catálogo inteiro é validado antes da carga: estrutura, campos obrigatórios, códigos únicos, contatos, indicadores e coordenadas. Uma localização pode ser `null`; quando informada, deve ser um GeoJSON `Point` com longitude e latitude numéricas válidas. Um arquivo ausente, JSON inválido ou registro inválido interrompe a carga de unidades sem inserções parciais. Falhas durante a persistência também revertem as inserções daquela execução.
+
+A carga identifica cada unidade por `code` e acrescenta somente códigos ausentes, preservando registros existentes, suas alterações, IDs e timestamps. Unidades adicionais também são preservadas. Alterações no JSON afetam instalações novas e unidades ainda ausentes; não corrigem automaticamente registros já cadastrados. Atualizações de unidades existentes exigem um procedimento administrativo separado e revisado.
+
+Para carregar apenas as unidades, sem executar o seeder de usuários:
+
+```bash
+php artisan db:seed --class=PoliceUnitSeeder --no-interaction
+```
+
+A manutenção das unidades ainda depende de um procedimento administrativo no backend; o projeto não fornece um importador geral ou tela de cadastro.
 
 ## Execução local
 
@@ -258,7 +288,7 @@ config/map.php               # Configuração da base cartográfica
 database/
 ├── factories/                # Dados utilizados pelos testes
 ├── migrations/               # Estrutura do banco
-└── seeders/                  # Seeder padrão, sem carga de dados
+└── seeders/                  # Carga inicial e catálogo de unidades
 resources/
 ├── css/                      # Estilos da aplicação
 ├── js/                       # Componente Leaflet e interações
