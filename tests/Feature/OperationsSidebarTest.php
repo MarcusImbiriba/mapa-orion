@@ -123,11 +123,11 @@ test('unlocated units remain private to authenticated users', function () {
     $this->get('/')->assertRedirect('/login')->assertDontSee('Unidade restrita sem localização');
 });
 
-test('the sidebar lists every unit exactly once with geometry-independent totals', function () {
-    PoliceUnit::factory()->withLocation()->create(['code' => 'a-point']);
-    PoliceUnit::factory()->withOperationalArea()->create(['code' => 'b-area']);
-    PoliceUnit::factory()->withLocation()->withOperationalArea()->create(['code' => 'c-both']);
-    PoliceUnit::factory()->create(['code' => 'd-neither']);
+test('the sidebar lists QCG first then battalions numerically with geometry-independent totals', function () {
+    PoliceUnit::factory()->withLocation()->create(['code' => '10-bpm']);
+    PoliceUnit::factory()->withOperationalArea()->create(['code' => '2-bpm']);
+    PoliceUnit::factory()->withLocation()->withOperationalArea()->create(['code' => '1-bpm']);
+    PoliceUnit::factory()->create(['code' => 'qcg-pmma']);
 
     $response = $this->actingAs(User::factory()->create())->get('/');
 
@@ -137,6 +137,10 @@ test('the sidebar lists every unit exactly once with geometry-independent totals
     $xpath = new DOMXPath($document);
     $rows = $xpath->query('//operations-sidebar//li[@data-unit-row-code]');
     expect(array_map(fn (DOMElement $row) => $row->getAttribute('data-unit-row-code'), iterator_to_array($rows)))
-        ->toBe(['a-point', 'b-area', 'c-both', 'd-neither']);
+        ->toBe(['qcg-pmma', '1-bpm', '2-bpm', '10-bpm']);
+    $map = $document->getElementsByTagName('mapa-orion-map')->item(0);
+    $units = json_decode($map->getAttribute('units'), true, flags: JSON_THROW_ON_ERROR);
+    expect(array_is_list($units))->toBeTrue();
+    expect(array_column($units, 'code'))->toBe(['qcg-pmma', '1-bpm', '2-bpm', '10-bpm']);
     expect($xpath->query('//operations-sidebar//button[@data-unit-details-code]')->length)->toBe(4);
 });
