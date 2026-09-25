@@ -135,12 +135,12 @@ class MapaOrionMap extends HTMLElement {
 
                 layers.point = marker;
 
-                marker.on('click', () => this.#showUnitDetails(unit, marker.getElement()));
+                marker.on('click', () => this.showUnitDetails(unit.code, marker.getElement(), { recenter: true }));
                 marker.on('keydown', ({ originalEvent }) => {
                     if (originalEvent.key === 'Enter' || originalEvent.key === ' ') {
                         originalEvent.preventDefault();
                         originalEvent.stopPropagation();
-                        this.#showUnitDetails(unit, marker.getElement());
+                        this.showUnitDetails(unit.code, marker.getElement(), { recenter: true });
                     }
                 });
             }
