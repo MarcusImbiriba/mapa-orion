@@ -135,12 +135,12 @@ class MapaOrionMap extends HTMLElement {
 
                 layers.point = marker;
 
-                marker.on('click', () => this.#showUnitDetails(unit, marker.getElement()));
+                marker.on('click', () => this.showUnitDetails(unit.code, marker.getElement(), { recenter: true }));
                 marker.on('keydown', ({ originalEvent }) => {
                     if (originalEvent.key === 'Enter' || originalEvent.key === ' ') {
                         originalEvent.preventDefault();
                         originalEvent.stopPropagation();
-                        this.#showUnitDetails(unit, marker.getElement());
+                        this.showUnitDetails(unit.code, marker.getElement(), { recenter: true });
                     }
                 });
             }
@@ -193,15 +193,34 @@ class MapaOrionMap extends HTMLElement {
         }
     }
 
-    showUnitDetails(code, trigger) {
+    showUnitDetails(code, trigger, { recenter = false } = {}) {
         const unit = this.#units.find((candidate) => candidate.code === code);
 
-        if (unit && this.#unitDialog && !this.#events?.signal.aborted) {
-            this.#showUnitDetails(unit, trigger);
+        if (this.#ready && unit && this.#unitDialog && !this.#events?.signal.aborted) {
+            const locationUnavailable = recenter && !isUnitPoint(unit.location);
+
+            if (recenter && !locationUnavailable) {
+                const [longitude, latitude] = unit.location.coordinates;
+                this.#map.panTo([latitude, longitude], {
+                    animate: true,
+                    duration: 2.2,
+                });
+            }
+
+            this.#showUnitDetails(unit, trigger, { locationUnavailable });
         }
     }
 
-    #showUnitDetails(unit, trigger) {
+    #showUnitDetails(unit, trigger, { locationUnavailable = false } = {}) {
+        const locationWarning = this.#unitDialog.querySelector('[data-unit-location-warning]');
+        locationWarning.hidden = !locationUnavailable;
+
+        if (locationUnavailable) {
+            this.#unitDialog.setAttribute('aria-describedby', locationWarning.id);
+        } else {
+            this.#unitDialog.removeAttribute('aria-describedby');
+        }
+
         this.#unitDialog.querySelectorAll('[data-unit-field]').forEach((element) => {
             const value = unit[element.dataset.unitField];
             const hasValue = value !== null && value !== undefined && String(value).trim() !== '';
