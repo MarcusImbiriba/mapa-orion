@@ -19,6 +19,11 @@
         </header>
 
         <div class="unit-details-scroll min-h-0 space-y-5 overflow-y-auto p-6">
+            <p id="unit-location-warning" data-unit-location-warning role="status" hidden
+               class="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-200">
+                Esta unidade não possui uma localização válida cadastrada.
+            </p>
+
             <section aria-label="Indicadores da unidade" class="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 @foreach (['Efetivo Total' => ['total_personnel', 'bg-blue-500', 'text-blue-400'], 'Oficiais' => ['officers_count', 'bg-cyan-500', 'text-cyan-400'], 'Praças' => ['enlisted_count', 'bg-indigo-500', 'text-indigo-400'], 'População' => ['served_population', 'bg-amber-500', 'text-amber-400']] as $label => [$field, $barColor, $iconColor])
                     <div data-unit-metric="{{ $field }}" class="relative overflow-hidden rounded-xl border border-slate-800 bg-slate-950 p-3 text-center">

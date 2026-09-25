@@ -51,7 +51,7 @@ class OperationsSidebar extends HTMLElement {
 
         this.querySelectorAll('[data-unit-details-code]').forEach((button) => {
             button.addEventListener('click', () => {
-                this.#map?.showUnitDetails(button.dataset.unitDetailsCode, button);
+                this.#map?.showUnitDetails(button.dataset.unitDetailsCode, button, { recenter: true });
             }, { signal });
         });
 
