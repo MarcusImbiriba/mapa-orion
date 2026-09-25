@@ -10,17 +10,27 @@
                             max-zoom="{{ config('map.max_zoom') }}"
                             tile-url="{{ config('map.tile_url') }}"
                             attribution="{{ config('map.attribution') }}"
+                            satellite-tile-url="{{ config('map.satellite.tile_url') }}"
+                            satellite-attribution="{{ config('map.satellite.attribution') }}"
+                            satellite-max-zoom="{{ config('map.satellite.max_zoom') }}"
                             units="{{ $units->toJson() }}"
                             data-ignore-morph>
                 <div data-map-canvas data-ignore aria-label="Mapa interativo. Use as setas para navegar e mais ou menos para ajustar o zoom."></div>
 
-                <div data-map-toolbar class="pointer-events-none absolute inset-x-3 top-3 z-[1000] flex items-start justify-between gap-3 sm:inset-x-5 sm:top-5">
-                    <div data-map-location-label class="rounded-xl border border-slate-700 bg-slate-900/95 px-3 py-2 shadow-lg">
-                        <p class="text-sm font-semibold text-amber-200">São Luís</p>
-                        <p class="text-xs text-slate-300">Maranhão</p>
+                <div data-map-toolbar class="pointer-events-none absolute top-3 right-3 z-[1000] flex flex-col items-end gap-2 sm:top-5 sm:right-5">
+                    <div data-map-basemap-control role="group" aria-label="Tipo de mapa"
+                         class="pointer-events-auto flex items-center gap-1 rounded-xl border border-slate-800 bg-slate-900/90 p-1.5 shadow-2xl backdrop-blur-md">
+                        <button type="button" data-map-basemap value="satellite" aria-pressed="false" disabled
+                                class="cursor-pointer rounded-lg px-2.5 py-1.5 text-xs font-semibold whitespace-nowrap text-slate-300 transition-all aria-pressed:bg-amber-500 aria-pressed:font-bold aria-pressed:text-slate-950 aria-pressed:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400 disabled:cursor-not-allowed">
+                            Satélite Esri
+                        </button>
+                        <button type="button" data-map-basemap value="streets" aria-pressed="true" disabled
+                                class="cursor-pointer rounded-lg px-2.5 py-1.5 text-xs font-semibold whitespace-nowrap text-slate-300 transition-all aria-pressed:bg-amber-500 aria-pressed:font-bold aria-pressed:text-slate-950 aria-pressed:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400 disabled:cursor-not-allowed">
+                            OpenStreetMap
+                        </button>
                     </div>
                     <button type="button" data-map-recenter disabled title="Recentralizar"
-                            class="pointer-events-auto flex min-h-10 items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-900/95 px-3 py-2 text-sm font-medium text-slate-100 shadow-lg transition hover:border-amber-300 hover:text-amber-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-300 disabled:opacity-60">
+                            class="pointer-events-auto flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-900/95 px-3 py-2 text-sm font-medium text-slate-100 shadow-lg transition hover:border-amber-300 hover:text-amber-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-300 disabled:cursor-not-allowed disabled:opacity-60">
                         <svg class="size-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>
                         <span data-map-recenter-label>Recentralizar</span>
                     </button>

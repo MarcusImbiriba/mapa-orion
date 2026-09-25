@@ -16,6 +16,7 @@ test('authenticated users receive the map with the initial Sao Luis view and log
         ->assertSee('max-zoom="19"', false)
         ->assertSee('https://tile.openstreetmap.org/{z}/{x}/{y}.png', false)
         ->assertSee('https://www.openstreetmap.org/copyright', false)
+        ->assertSee('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', false)
         ->assertSee('data-ignore-morph', false)
         ->assertSee('Recentralizar')
         ->assertSee('Sair')
@@ -27,13 +28,19 @@ test('the map receives server configuration instead of hardcoded view values', f
     config()->set('map.center.longitude', -45.67);
     config()->set('map.zoom', 9);
     config()->set('map.tile_url', 'https://tiles.example.test/{z}/{x}/{y}.png');
+    config()->set('map.satellite.tile_url', 'https://imagery.example.test/{z}/{y}/{x}');
+    config()->set('map.satellite.attribution', 'Imagery provider');
+    config()->set('map.satellite.max_zoom', 17);
 
     $this->actingAs(User::factory()->create())->get('/')
         ->assertOk()
         ->assertSee('latitude="-3.12"', false)
         ->assertSee('longitude="-45.67"', false)
         ->assertSee('zoom="9"', false)
-        ->assertSee('https://tiles.example.test/{z}/{x}/{y}.png', false);
+        ->assertSee('https://tiles.example.test/{z}/{x}/{y}.png', false)
+        ->assertSee('satellite-tile-url="https://imagery.example.test/{z}/{y}/{x}"', false)
+        ->assertSee('satellite-attribution="Imagery provider"', false)
+        ->assertSee('satellite-max-zoom="17"', false);
 });
 
 test('the login page does not render a map or its tile configuration', function () {
@@ -43,13 +50,36 @@ test('the login page does not render a map or its tile configuration', function 
         ->assertDontSee('tile.openstreetmap.org', false);
 });
 
-test('map configuration cannot break out of its HTML attribute', function () {
-    config()->set('map.attribution', '"><script>alert(1)</script>');
+test('map configuration cannot break out of its HTML attribute', function (string $key) {
+    config()->set($key, '"><script>alert(1)</script>');
 
     $this->actingAs(User::factory()->create())->get('/')
         ->assertOk()
         ->assertSee('&quot;&gt;&lt;script&gt;alert(1)&lt;/script&gt;', false)
         ->assertDontSee('<script>alert(1)</script>', false);
+})->with(['map.attribution', 'map.satellite.attribution', 'map.satellite.tile_url']);
+
+test('the basemap selector exposes two choices with streets active until the map is ready', function () {
+    $response = $this->actingAs(User::factory()->create())->get('/');
+
+    $response->assertSee('Satélite Esri')->assertDontSee('estará disponível em breve');
+    $document = new DOMDocument;
+    @$document->loadHTML($response->getContent());
+    $xpath = new DOMXPath($document);
+    $selector = $xpath->query('//div[@data-map-basemap-control]')->item(0);
+    expect($selector->getAttribute('role'))->toBe('group');
+    expect($selector->getAttribute('aria-label'))->toBe('Tipo de mapa');
+    $buttons = $xpath->query('.//button', $selector);
+    expect($buttons->length)->toBe(2);
+    expect($buttons->item(0)->getAttribute('value'))->toBe('satellite');
+    expect($buttons->item(0)->getAttribute('aria-pressed'))->toBe('false');
+    expect($buttons->item(1)->getAttribute('value'))->toBe('streets');
+    expect($buttons->item(1)->getAttribute('aria-pressed'))->toBe('true');
+    foreach ($buttons as $button) {
+        expect($button->getAttribute('type'))->toBe('button');
+        expect($button->hasAttribute('disabled'))->toBeTrue();
+    }
+    expect($selector->textContent)->not->toContain('Tático Escuro');
 });
 
 test('the map receives all units and the fields needed for their details', function () {
