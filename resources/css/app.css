@@ -129,8 +129,12 @@ operations-sidebar [data-sidebar-scroll] {
 }
 
 @container (max-width: 42rem) {
+    .map-workspace operations-sidebar[data-open] {
+        top: 4rem;
+    }
+
     .map-workspace:has(operations-sidebar[data-open]) [data-map-toolbar] {
-        top: 3.5rem;
+        top: 0.75rem;
     }
 
     .map-workspace:has(operations-sidebar[data-open]) [data-map-recenter-label] {

@@ -14,10 +14,19 @@
                             data-ignore-morph>
                 <div data-map-canvas data-ignore aria-label="Mapa interativo. Use as setas para navegar e mais ou menos para ajustar o zoom."></div>
 
-                <div data-map-toolbar class="pointer-events-none absolute top-3 right-3 z-[1000] flex flex-col items-end gap-3 sm:top-5 sm:right-5">
-                    <div data-map-location-label class="rounded-xl border border-slate-700 bg-slate-900/95 px-3 py-2 shadow-lg">
-                        <p class="text-sm font-semibold text-amber-200">São Luís</p>
-                        <p class="text-xs text-slate-300">Maranhão</p>
+                <div data-map-toolbar class="pointer-events-none absolute top-3 right-3 z-[1000] flex flex-col items-end gap-2 sm:top-5 sm:right-5">
+                    <div data-map-basemap-control role="group" aria-label="Tipo de mapa"
+                         class="pointer-events-auto flex items-center gap-1 rounded-xl border border-slate-800 bg-slate-900/90 p-1.5 shadow-2xl backdrop-blur-md">
+                        <button type="button" data-map-basemap value="satellite" aria-pressed="false" disabled
+                                title="Satélite Esri — disponível em breve" aria-describedby="map-satellite-availability"
+                                class="rounded-lg px-2.5 py-1.5 text-xs font-semibold whitespace-nowrap text-slate-300 transition-all enabled:hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400 disabled:cursor-not-allowed">
+                            Satélite Esri
+                        </button>
+                        <button type="button" data-map-basemap value="streets" aria-pressed="true"
+                                class="rounded-lg bg-amber-500 px-2.5 py-1.5 text-xs font-bold whitespace-nowrap text-slate-950 shadow-md transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400">
+                            OpenStreetMap
+                        </button>
+                        <p id="map-satellite-availability" class="sr-only">Satélite Esri estará disponível em breve.</p>
                     </div>
                     <button type="button" data-map-recenter disabled title="Recentralizar"
                             class="pointer-events-auto flex min-h-10 items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-900/95 px-3 py-2 text-sm font-medium text-slate-100 shadow-lg transition hover:border-amber-300 hover:text-amber-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-300 disabled:opacity-60">
