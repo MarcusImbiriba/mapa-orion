@@ -14,7 +14,7 @@
                             data-ignore-morph>
                 <div data-map-canvas data-ignore aria-label="Mapa interativo. Use as setas para navegar e mais ou menos para ajustar o zoom."></div>
 
-                <div data-map-toolbar class="pointer-events-none absolute inset-x-3 top-3 z-[1000] flex items-start justify-between gap-3 sm:inset-x-5 sm:top-5">
+                <div data-map-toolbar class="pointer-events-none absolute top-3 right-3 z-[1000] flex flex-col items-end gap-3 sm:top-5 sm:right-5">
                     <div data-map-location-label class="rounded-xl border border-slate-700 bg-slate-900/95 px-3 py-2 shadow-lg">
                         <p class="text-sm font-semibold text-amber-200">São Luís</p>
                         <p class="text-xs text-slate-300">Maranhão</p>

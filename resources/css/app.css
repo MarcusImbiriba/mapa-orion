@@ -84,7 +84,7 @@ mapa-orion-header [hidden] {
 }
 
 .map-workspace {
-    --sidebar-width: min(24rem, calc(100cqw - 3.5rem));
+    --sidebar-width: min(24rem, calc(100cqw - 7rem));
     container-type: size;
 }
 
@@ -117,13 +117,7 @@ operations-sidebar [data-sidebar-scroll] {
 }
 
 .map-workspace:has(operations-sidebar[data-open]) [data-map-toolbar] {
-    left: calc(var(--sidebar-width) + 3rem);
     right: 0.5rem;
-    justify-content: flex-end;
-}
-
-.map-workspace:has(operations-sidebar[data-open]) [data-map-location-label] {
-    margin-right: auto;
 }
 
 .map-workspace:has(operations-sidebar[data-open]) [data-map-status] {
@@ -135,10 +129,6 @@ operations-sidebar [data-sidebar-scroll] {
 }
 
 @container (max-width: 42rem) {
-    .map-workspace:has(operations-sidebar[data-open]) [data-map-location-label] {
-        display: none;
-    }
-
     .map-workspace:has(operations-sidebar[data-open]) [data-map-toolbar] {
         top: 3.5rem;
     }
