@@ -378,6 +378,16 @@ O Codex apenas fornecerá esses comandos quando forem necessários.
 
 ---
 
+# Sincronização entre etapas
+
+Após cada etapa funcional validada e commitada, o usuário deve publicar a branch no repositório remoto e confirmar a sincronização antes de o Codex iniciar a próxima etapa funcional.
+
+A confirmação deve verificar que o identificador completo do commit local (`HEAD`) é igual ao identificador da mesma branch consultada no remoto. O Codex deve fornecer os comandos no checklist manual e aguardar o retorno do usuário confirmando a sincronização.
+
+A publicação da branch não implica merge nem encerramento da Issue. Essas operações ficam para depois da conclusão e validação de todas as etapas previstas na Issue.
+
+---
+
 # GitHub
 
 Operações no GitHub são responsabilidade manual do usuário.
@@ -628,7 +638,13 @@ Codex corrige somente se necessário
       ↓
 usuário revisa git diff
       ↓
-usuário executa commit/push/merge
+usuário executa commit e push da etapa
+      ↓
+usuário confirma que os identificadores local e remoto são iguais
+      ↓
+se houver outra etapa, Codex retoma a análise dos arquivos para essa etapa
+      ↓
+após concluir e validar todas as etapas, usuário realiza a integração (merge)
       ↓
 usuário encerra a Issue
 ```
