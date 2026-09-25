@@ -1,4 +1,5 @@
 import L from 'leaflet';
+import { BasemapSwitcher } from './basemap-switcher';
 import { isOperationalArea } from './operational-area';
 import { isUnitPoint } from './unit-filters';
 import markerIconUrl from 'leaflet/dist/images/marker-icon.png';
@@ -25,6 +26,7 @@ class MapaOrionMap extends HTMLElement {
     #units = [];
     #layers = new Map();
     #ready = false;
+    #basemaps;
 
     connectedCallback() {
         if (this.#map) {
@@ -42,6 +44,7 @@ class MapaOrionMap extends HTMLElement {
             this.#map = L.map(canvas, {
                 center: this.#center,
                 zoom: this.#zoom,
+                maxZoom: Number(this.getAttribute('max-zoom')),
                 zoomControl: false,
             });
 
@@ -51,26 +54,33 @@ class MapaOrionMap extends HTMLElement {
                 zoomOutTitle: 'Afastar',
             }).addTo(this.#map);
 
-            let hasTileError = false;
-
-            L.tileLayer(this.getAttribute('tile-url'), {
-                maxZoom: Number(this.getAttribute('max-zoom')),
-                attribution: this.getAttribute('attribution'),
-            })
-                .on('loading', () => {
-                    hasTileError = false;
-                })
-                .on('tileerror', () => {
-                    hasTileError = true;
-                    status.textContent = 'Não foi possível carregar parte do mapa. Verifique sua conexão e recarregue a página.';
-                    status.hidden = false;
-                })
-                .on('load', () => {
-                    if (!hasTileError) {
-                        status.hidden = true;
-                    }
-                })
-                .addTo(this.#map);
+            this.#basemaps = new BasemapSwitcher(this.#map, new Map([
+                ['streets', {
+                    label: 'OpenStreetMap',
+                    layer: L.tileLayer(this.getAttribute('tile-url'), {
+                        maxZoom: Number(this.getAttribute('max-zoom')),
+                        attribution: this.getAttribute('attribution'),
+                    }),
+                }],
+                ['satellite', {
+                    label: 'Satélite Esri',
+                    layer: L.tileLayer(this.getAttribute('satellite-tile-url'), {
+                        maxZoom: Number(this.getAttribute('satellite-max-zoom')),
+                        attribution: this.getAttribute('satellite-attribution'),
+                    }),
+                }],
+            ]), {
+                onChange: (name) => {
+                    this.querySelectorAll('[data-map-basemap]').forEach((button) => {
+                        button.setAttribute('aria-pressed', String(button.value === name));
+                    });
+                },
+                onStatus: (message) => {
+                    status.textContent = message;
+                    status.hidden = message === '';
+                },
+            });
+            this.#basemaps.select('streets');
 
             this.#unitDialog = this.querySelector('[data-unit-dialog]');
             this.#unitDialog.querySelectorAll('[data-unit-close]').forEach((button) => {
@@ -150,6 +160,13 @@ class MapaOrionMap extends HTMLElement {
                 signal: this.#events.signal,
             });
 
+            this.querySelectorAll('[data-map-basemap]').forEach((button) => {
+                button.disabled = false;
+                button.addEventListener('click', () => this.setBasemap(button.value), {
+                    signal: this.#events.signal,
+                });
+            });
+
             this.#resizeObserver = new ResizeObserver(() => {
                 this.#map?.invalidateSize({ pan: false, debounceMoveend: true });
             });
@@ -170,6 +187,10 @@ class MapaOrionMap extends HTMLElement {
 
     getUnits() {
         return this.#units;
+    }
+
+    setBasemap(name) {
+        return this.#ready ? this.#basemaps.select(name) : false;
     }
 
     setUnitVisibility(codes, { points = true, areas = true } = {}) {
@@ -282,9 +303,15 @@ class MapaOrionMap extends HTMLElement {
         this.#events?.abort();
         this.#unitDialog?.close();
         this.#returnFocus = undefined;
+        this.#basemaps?.destroy();
+        this.#basemaps = undefined;
         this.#map?.remove();
         this.#map = undefined;
         this.#layers.clear();
+
+        this.querySelectorAll('[data-map-basemap]').forEach((button) => {
+            button.disabled = true;
+        });
 
         const recenterButton = this.querySelector('[data-map-recenter]');
 

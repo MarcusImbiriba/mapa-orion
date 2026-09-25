@@ -42,6 +42,11 @@ mapa-orion-map .leaflet-control a:focus-visible {
     outline-offset: 2px;
 }
 
+mapa-orion-map [data-map-basemap][aria-pressed='false']:enabled:is(:hover, :focus-visible) {
+    background-color: var(--color-slate-700);
+    color: var(--color-slate-100);
+}
+
 mapa-orion-map [data-unit-dialog]::backdrop {
     background: rgb(2 6 23 / 70%);
     backdrop-filter: blur(4px);
