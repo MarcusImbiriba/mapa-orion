@@ -11,6 +11,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             InitialUserSeeder::class,
             PoliceUnitSeeder::class,
+            OperationalAreaSeeder::class,
         ]);
 
         // Application users are created interactively with the users:create command.
