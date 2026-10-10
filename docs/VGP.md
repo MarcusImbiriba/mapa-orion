@@ -21,8 +21,6 @@
 
 ---
 
-Atualizado em **24/09/2026** a partir do código, das configurações, das migrações e dos testes do projeto em `/home/meci/Dev/WebApp/MapaOrion/mapa.orion`.
-
 A **implementação Laravel é a versão definitiva do projeto**, conforme decisão do responsável. Este documento descreve exclusivamente seu estado implementado. Substitui a consolidação de 10/09/2026 e pode ser utilizado de forma independente dos documentos anteriores. Funcionalidades ainda ausentes não são apresentadas como concluídas nem como compromissos de implementação.
 
 ## 1. Visão geral e escopo disponível
