@@ -191,22 +191,37 @@ test('a file listing failure aborts the import', function () {
     $this->assertDatabaseEmpty('police_units');
 });
 
-test('the default seeder creates the initial user and units before importing the canonical area', function () {
+test('the default seeder creates the initial user and units before importing the canonical areas', function () {
     config(['mapa_orion.initial_user' => [
         'name' => 'Comando',
         'username' => 'comando',
         'password' => 'SenhaInicial@Teste123',
     ]]);
-    $area = File::json(database_path('seeders/data/operational_areas/20-bpm.geojson'), JSON_THROW_ON_ERROR);
+    $catalog = File::json(database_path('seeders/data/police_units.json'), JSON_THROW_ON_ERROR);
+    $files = File::glob(database_path('seeders/data/operational_areas/*.geojson'));
+    expect($files)->toBeArray()->not->toBeEmpty();
+    $areas = [];
+
+    foreach ($files as $path) {
+        $areas[pathinfo($path, PATHINFO_FILENAME)] = File::json($path, JSON_THROW_ON_ERROR);
+    }
+
+    ksort($areas);
+    expect($areas)->toHaveKey('20-bpm');
 
     $this->artisan('db:seed', ['--class' => DatabaseSeeder::class, '--no-interaction' => true])
         ->expectsOutput('Usuário inicial "comando" criado com sucesso.')
-        ->expectsOutput('Unidades: 21 criada(s); 0 já existente(s), preservada(s).')
-        ->expectsOutput('Áreas operacionais: 1 importada(s); 0 já existente(s), preservada(s).')
+        ->expectsOutput(sprintf('Unidades: %d criada(s); 0 já existente(s), preservada(s).', count($catalog)))
+        ->expectsOutput(sprintf('Áreas operacionais: %d importada(s); 0 já existente(s), preservada(s).', count($areas)))
         ->assertSuccessful();
 
     $this->assertDatabaseHas('users', ['username' => 'comando']);
-    $this->assertDatabaseCount('police_units', 21);
-    expect(PoliceUnit::query()->where('code', '20-bpm')->sole()->operational_area)->toBe($area);
-    expect(PoliceUnit::query()->whereNotNull('operational_area')->pluck('code')->all())->toBe(['20-bpm']);
+    $this->assertDatabaseCount('police_units', count($catalog));
+
+    foreach ($areas as $code => $area) {
+        expect(PoliceUnit::query()->where('code', $code)->sole()->operational_area)->toBe($area);
+    }
+
+    expect(PoliceUnit::query()->whereNotNull('operational_area')->orderBy('code')->pluck('code')->all())
+        ->toBe(array_keys($areas));
 });

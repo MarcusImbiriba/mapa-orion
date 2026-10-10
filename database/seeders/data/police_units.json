@@ -27,6 +27,33 @@
         "metrics_are_demo": true
     },
     {
+        "code": "1-bptur",
+        "name": "1º Batalhão de Polícia Militar de Turismo",
+        "acronym": "1º BPTur",
+        "unit_type": "ESPECIALIZADO",
+        "region": null,
+        "address": "Av. dos Holandeses, 3029-3125 - Ponta D'areia, São Luís – MA",
+        "location": {
+            "type": "Point",
+            "coordinates": [
+                -44.30681060241017,
+                -2.4989021239299127
+            ]
+        },
+        "commander": null,
+        "deputy_commander": null,
+        "phone": "(98) 99137-8632",
+        "email": null,
+        "served_localities": "Centro; São Marcos; Calhau; Caolho; Olho D’água",
+        "officers_count": 8,
+        "enlisted_count": 80,
+        "served_population": 26000,
+        "personnel_reference_date": null,
+        "population_reference_year": null,
+        "population_source": null,
+        "metrics_are_demo": false
+    },
+    {
         "code": "1-bpm",
         "name": "1º Batalhão de Polícia Militar",
         "acronym": "1° BPM",
