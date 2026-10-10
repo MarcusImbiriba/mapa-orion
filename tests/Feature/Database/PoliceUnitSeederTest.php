@@ -17,11 +17,7 @@ test('the default seeder installs the current unit catalog with all domain data'
     $catalog = File::json(database_path('seeders/data/police_units.json'), JSON_THROW_ON_ERROR);
     $units = PoliceUnit::query()->orderBy('id')->get();
 
-    expect($units->pluck('code')->all())->toBe([
-        'qcg-pmma', '1-bpm', '2-bpm', '3-bpm', '4-bpm', '5-bpm', '6-bpm', '7-bpm',
-        '8-bpm', '9-bpm', '10-bpm', '11-bpm', '12-bpm', '13-bpm', '14-bpm', '15-bpm',
-        '16-bpm', '17-bpm', '18-bpm', '19-bpm', '20-bpm',
-    ]);
+    expect($units->pluck('code')->all())->toBe(array_column($catalog, 'code'));
     expect($units->map(fn (PoliceUnit $unit): array => $unit->only(array_keys($catalog[0])))->all())
         ->toBe($catalog);
 
@@ -104,6 +100,7 @@ test('repeating the default seed preserves unit ids attributes and timestamps', 
 });
 
 test('seeding a partial database preserves revised and additional units while filling missing codes', function () {
+    $catalog = File::json(database_path('seeders/data/police_units.json'), JSON_THROW_ON_ERROR);
     $this->freezeTime();
     $revised = PoliceUnit::factory()->create([
         'code' => '1-bpm',
@@ -123,7 +120,7 @@ test('seeding a partial database preserves revised and additional units while fi
     $this->seed(PoliceUnitSeeder::class);
     $this->travelBack();
 
-    $this->assertDatabaseCount('police_units', 22);
+    $this->assertDatabaseCount('police_units', count($catalog) + 1);
     $this->assertDatabaseHas('police_units', ['code' => 'qcg-pmma', 'name' => 'Quartel do Comando Geral']);
     expect($revised->fresh()->getRawOriginal())->toBe($revisedBefore);
     expect($additional->fresh()->getRawOriginal())->toBe($additionalBefore);
@@ -168,14 +165,16 @@ test('catalogs must be nonempty lists before any units are inserted', function (
 
 test('invalid catalog records prevent even earlier valid records from being inserted', function (string $field, mixed $value, string $errorField) {
     $catalog = File::json(database_path('seeders/data/police_units.json'), JSON_THROW_ON_ERROR);
-    data_set($catalog[20], $field, $value);
+    $index = array_search('20-bpm', array_column($catalog, 'code'), true);
+    expect($index)->not->toBeFalse();
+    data_set($catalog[$index], $field, $value);
     File::partialMock()->shouldReceive('json')
         ->with(database_path('seeders/data/police_units.json'), JSON_THROW_ON_ERROR)
         ->andReturn($catalog);
 
     expect(fn () => $this->seed(PoliceUnitSeeder::class))
-        ->toThrow(function (ValidationException $exception) use ($errorField): void {
-            expect($exception->errors())->toHaveKey(rtrim('units.20.'.$errorField, '.'));
+        ->toThrow(function (ValidationException $exception) use ($errorField, $index): void {
+            expect($exception->errors())->toHaveKey(rtrim('units.'.$index.'.'.$errorField, '.'));
         });
 
     $this->assertDatabaseEmpty('police_units');
@@ -204,7 +203,8 @@ test('invalid catalog records prevent even earlier valid records from being inse
 
 test('catalogs support unknown locations and real zero values', function (?array $location) {
     $catalog = File::json(database_path('seeders/data/police_units.json'), JSON_THROW_ON_ERROR);
-    $unit = $catalog[16];
+    $unit = collect($catalog)->firstWhere('code', '16-bpm');
+    expect($unit)->toBeArray();
     $unit['location'] = $location;
     $unit['officers_count'] = 0;
     $unit['enlisted_count'] = 0;
