@@ -1,5 +1,26 @@
 # Mapa Orion — Visão Geral do Projeto
 
+## Controle documental
+
+| Campo | Informação |
+| --- | --- |
+| Documento | `docs/VGP.md` |
+| Autor e responsável editorial | Marcus Imbiriba |
+| Versão do documento | 1.0 (início do controle documental) |
+| Última revisão documental | 10/10/2026 |
+| Base técnica desta versão | 24/09/2026 |
+| Situação | Em manutenção |
+
+### Histórico de revisões
+
+| Versão | Data | Descrição das alterações | Responsável |
+| --- | --- | --- | --- |
+| 1.0 | 10/10/2026 | Implantação do controle documental, sem revisão do conteúdo técnico existente. | Marcus Imbiriba |
+
+> As revisões documentais, inclusive as preparadas com assistência de IA, têm Marcus Imbiriba como responsável editorial. A identificação técnica de commits e ferramentas permanece rastreável no Git. Esta atualização administrativa não representa nova validação do estado implementado.
+
+---
+
 Atualizado em **24/09/2026** a partir do código, das configurações, das migrações e dos testes do projeto em `/home/meci/Dev/WebApp/MapaOrion/mapa.orion`.
 
 A **implementação Laravel é a versão definitiva do projeto**, conforme decisão do responsável. Este documento descreve exclusivamente seu estado implementado. Substitui a consolidação de 10/09/2026 e pode ser utilizado de forma independente dos documentos anteriores. Funcionalidades ainda ausentes não são apresentadas como concluídas nem como compromissos de implementação.
