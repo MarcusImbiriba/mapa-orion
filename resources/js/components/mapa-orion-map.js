@@ -1,6 +1,7 @@
 import L from 'leaflet';
 import { BasemapSwitcher } from './basemap-switcher';
 import { isOperationalArea } from './operational-area';
+import { getOperationalAreaStyle } from './operational-area-style';
 import { isUnitPoint } from './unit-filters';
 import markerIconUrl from 'leaflet/dist/images/marker-icon.png';
 import markerIconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
@@ -102,7 +103,7 @@ class MapaOrionMap extends HTMLElement {
 
                 if (isOperationalArea(unit.operational_area)) {
                     layers.area = L.geoJSON(unit.operational_area, {
-                        style: { color: '#b45309', weight: 2, fillColor: '#f59e0b', fillOpacity: 0.16 },
+                        style: getOperationalAreaStyle(unit.code),
                         onEachFeature: (_feature, layer) => {
                             layer.on('add', () => {
                                 const element = layer.getElement();
